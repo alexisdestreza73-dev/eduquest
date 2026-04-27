@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduQuest — Level Up Your Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #0f1628;
+  --panel: #141c35;
+  --panel2: #1a2340;
+  --border: #1e2d55;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #f59e0b;
+  --accent4: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+  --glow2: 0 0 20px rgba(124,58,237,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ── PARTICLES BG ── */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:var(--accent);border-radius:50%;animation:float linear infinite;opacity:0;}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{transform:translateY(-10px) translateX(50px);opacity:0;}}
+
+/* ── SCREENS ── */
+.screen{position:relative;z-index:1;min-height:100vh;display:none;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ══ LOGIN SCREEN ══ */
+#login-screen{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%, #1a1040 0%, var(--bg) 60%);}
+.login-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:48px;width:420px;max-width:95vw;box-shadow:0 0 60px rgba(0,212,255,0.1),0 0 120px rgba(124,58,237,0.1);}
+.logo{text-align:center;margin-bottom:32px;}
+.logo h1{font-family:'Orbitron',monospace;font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:4px;}
+.logo p{color:var(--muted);font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.login-box label{display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
+.login-box input, .login-box select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:1rem;margin-bottom:20px;transition:border-color .2s;}
+.login-box input:focus,.login-box select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--glow);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,212,255,0.5);}
+.btn-sm{padding:8px 16px;font-size:0.75rem;width:auto;border-radius:6px;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-success{background:var(--accent4);color:#fff;}
+.btn-warn{background:var(--accent3);color:#000;}
+.btn-secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+.admin-badge{display:inline-block;background:rgba(245,158,11,0.15);border:1px solid var(--accent3);color:var(--accent3);padding:4px 12px;border-radius:20px;font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;margin-top:8px;}
+
+/* ══ MAIN APP ══ */
+#app-screen{background:var(--bg);}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.topbar-user{display:flex;align-items:center;gap:12px;}
+.user-avatar-sm{width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--panel2);}
+.nav{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border);}
+.nav-btn{padding:8px 16px;border:none;background:transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:7px;transition:all .2s;letter-spacing:1px;}
+.nav-btn.active,.nav-btn:hover{background:var(--panel2);color:var(--text);}
+.nav-btn.active{color:var(--accent);}
+.content{padding:28px;max-width:1200px;margin:0 auto;}
+
+/* ══ DASHBOARD ══ */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.cyan::before{background:var(--accent);}
+.stat-card.purple::before{background:var(--accent2);}
+.stat-card.gold::before{background:var(--accent3);}
+.stat-card.green::before{background:var(--accent4);}
+.stat-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.stat-value{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;}
+.stat-value.cyan{color:var(--accent);}
+.stat-value.purple{color:var(--accent2);}
+.stat-value.gold{color:var(--accent3);}
+.stat-value.green{color:var(--accent4);}
+
+/* XP Bar */
+.xp-section{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:28px;}
+.xp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.xp-bar-bg{background:var(--bg2);border-radius:999px;height:16px;overflow:hidden;border:1px solid var(--border);}
+.xp-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s cubic-bezier(.4,0,.2,1);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;top:2px;left:8px;right:8px;height:4px;background:rgba(255,255,255,0.3);border-radius:999px;}
+
+/* Badges */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:12px;}
+.badge-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;transition:all .2s;cursor:default;}
+.badge-item.unlocked{border-color:var(--accent3);box-shadow:0 0 12px rgba(245,158,11,0.2);}
+.badge-item.locked{opacity:0.35;filter:grayscale(1);}
+.badge-icon{font-size:2rem;display:block;margin-bottom:4px;}
+.badge-name{font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.badge-item.unlocked .badge-name{color:var(--accent3);}
+
+/* ══ LEADERBOARD ══ */
+.lb-table{width:100%;border-collapse:collapse;}
+.lb-table th{text-align:left;padding:12px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);}
+.lb-table td{padding:14px 16px;border-bottom:1px solid var(--border);}
+.lb-row{transition:background .2s;}
+.lb-row:hover{background:var(--panel2);}
+.lb-rank{font-family:'Orbitron',monospace;font-weight:700;font-size:1.1rem;}
+.rank-1{color:var(--accent3);}
+.rank-2{color:#94a3b8;}
+.rank-3{color:#cd7c2f;}
+.lb-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:var(--panel2);border:2px solid var(--border);}
+.lb-name{font-weight:600;font-size:1.05rem;}
+.lb-xp{font-family:'Orbitron',monospace;color:var(--accent);font-size:0.9rem;}
+.lb-level{display:inline-block;background:rgba(124,58,237,0.2);border:1px solid var(--accent2);color:var(--accent2);padding:3px 10px;border-radius:20px;font-size:0.75rem;font-family:'Orbitron',monospace;}
+.lb-gpa{font-family:'Share Tech Mono',monospace;color:var(--accent4);}
+.trophy{font-size:1.4rem;}
+.quiz-score-badge{display:inline-block;background:rgba(16,185,129,0.15);border:1px solid var(--accent4);color:var(--accent4);padding:2px 8px;border-radius:12px;font-size:0.75rem;font-family:'Orbitron',monospace;}
+
+/* ══ GAMES HUB ══ */
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.game-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative;}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.4),var(--glow);}
+.game-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;}
+.game-thumb.cp{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);}
+.game-thumb.hci{background:linear-gradient(135deg,#1a0533,#2d1b69,#11998e);}
+.game-thumb.fis{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);}
+.game-info{padding:16px;}
+.game-subject{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:4px;}
+.game-title{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
+.game-desc{font-size:0.85rem;color:var(--muted);margin-bottom:12px;}
+.game-meta{display:flex;align-items:center;justify-content:space-between;}
+.difficulty{display:flex;gap:3px;}
+.diff-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.diff-dot.active{background:var(--accent3);}
+.xp-reward{font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--accent);}
+
+/* ══ QUIZ MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;}
+.modal-body{padding:28px;}
+.close-btn{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;transition:color .2s;}
+.close-btn:hover{color:var(--text);}
+.question-num{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.question-text{font-size:1.15rem;font-weight:600;margin-bottom:24px;line-height:1.5;}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.option{background:var(--bg2);border:2px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;transition:all .2s;font-size:0.95rem;text-align:left;}
+.option:hover:not(.disabled){border-color:var(--accent);background:rgba(0,212,255,0.05);}
+.option.correct{border-color:var(--accent4);background:rgba(16,185,129,0.15);color:var(--accent4);}
+.option.wrong{border-color:var(--red);background:rgba(239,68,68,0.1);color:var(--red);}
+.option.disabled{cursor:not-allowed;}
+.answer-feedback{padding:14px 18px;border-radius:10px;margin-bottom:16px;font-weight:600;}
+.answer-feedback.correct{background:rgba(16,185,129,0.15);border:1px solid var(--accent4);color:var(--accent4);}
+.answer-feedback.wrong{background:rgba(239,68,68,0.1);border:1px solid var(--red);color:var(--red);}
+.progress-bar{background:var(--bg2);border-radius:999px;height:6px;margin-bottom:20px;}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s;}
+.quiz-result{text-align:center;padding:20px 0;}
+.result-score{font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.result-xp{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--accent);margin:8px 0;}
+.confetti-line{font-size:2rem;letter-spacing:4px;margin:12px 0;}
+
+/* ══ PROFILE ══ */
+.profile-grid{display:grid;grid-template-columns:300px 1fr;gap:24px;}
+@media(max-width:768px){.profile-grid{grid-template-columns:1fr;}}
+.profile-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center;}
+.profile-avatar-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--panel2);margin:0 auto 16px;box-shadow:0 0 30px rgba(0,212,255,0.2);}
+.profile-name{font-size:1.3rem;font-weight:700;margin-bottom:4px;}
+.profile-title{font-size:0.8rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);}
+.section-title{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.avatar-picker{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px;}
+.avatar-opt{width:52px;height:52px;border-radius:50%;background:var(--panel2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:all .2s;}
+.avatar-opt:hover,.avatar-opt.selected{border-color:var(--accent);box-shadow:0 0 12px rgba(0,212,255,0.3);}
+.avatar-opt.locked{opacity:0.3;cursor:not-allowed;filter:grayscale(1);}
+.theme-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.theme-opt{height:50px;border-radius:8px;cursor:pointer;border:2px solid var(--border);transition:all .2s;position:relative;overflow:hidden;}
+.theme-opt:hover,.theme-opt.selected{border-color:var(--accent);}
+.theme-opt.locked::after{content:'🔒';position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+
+/* ══ ADMIN PANEL ══ */
+.admin-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.admin-table th{text-align:left;padding:10px 14px;font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);}
+.admin-table td{padding:12px 14px;border-bottom:1px solid var(--border);}
+.admin-table input{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:0.9rem;width:100px;}
+.admin-table input:focus{outline:none;border-color:var(--accent);}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;}
+.tag-cyan{background:rgba(0,212,255,0.1);border:1px solid var(--accent);color:var(--accent);}
+.tag-purple{background:rgba(124,58,237,0.1);border:1px solid var(--accent2);color:var(--accent2);}
+
+/* ══ UTILS ══ */
+.flex{display:flex;} .gap-2{gap:8px;} .gap-3{gap:12px;} .items-center{align-items:center;}
+.mb-4{margin-bottom:16px;} .mb-6{margin-bottom:24px;} .mb-2{margin-bottom:8px;}
+.text-muted{color:var(--muted);} .text-sm{font-size:0.85rem;} .font-mono{font-family:'Orbitron',monospace;}
+.w-full{width:100%;} .mt-4{margin-top:16px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr;}}
+
+/* Animate in */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .4s ease forwards;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.pulse{animation:pulse 2s infinite;}
+
+/* Notification */
+.notif{position:fixed;top:80px;right:24px;background:var(--panel);border:1px solid var(--accent4);color:var(--accent4);padding:14px 20px;border-radius:10px;z-index:9999;font-weight:600;box-shadow:0 0 20px rgba(16,185,129,0.2);animation:slideIn .3s ease;max-width:320px;}
+.notif.error{border-color:var(--red);color:var(--red);box-shadow:0 0 20px rgba(239,68,68,0.2);}
+.notif.gold{border-color:var(--accent3);color:var(--accent3);}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
+<div id="login-screen" class="screen active">
+  <div class="login-box fade-up">
+    <div class="logo">
+      <h1>EDUQUEST</h1>
+      <p>Level Up Your Learning</p>
+    </div>
+    <label>Select Student</label>
+    <select id="login-select">
+      <option value="">— Choose your name —</option>
+    </select>
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="Enter your password">
+    <button class="btn btn-primary" onclick="doLogin()">ENTER THE QUEST</button>
+
+  </div>
+</div>
+
+<!-- ══════════════════ APP SCREEN ══════════════════ -->
+<div id="app-screen" class="screen">
+  <!-- Topbar -->
+  <div class="topbar">
+    <span class="topbar-logo">EDUQUEST</span>
+    <div class="nav">
+      <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="switchTab('leaderboard')">Leaderboard</button>
+      <button class="nav-btn" onclick="switchTab('games')">Games</button>
+      <button class="nav-btn" onclick="switchTab('profile')">Profile</button>
+      <button class="nav-btn" id="admin-nav-btn" style="display:none" onclick="switchTab('admin')">⚙ Admin</button>
+    </div>
+    <div class="topbar-user">
+      <div class="user-avatar-sm" id="topbar-avatar">😊</div>
+      <span id="topbar-name" style="font-weight:600"></span>
+      <button class="btn btn-secondary btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="content fade-up">
+    <div class="mb-6">
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:4px" id="dash-greeting">Welcome back!</h2>
+      <p class="text-muted text-sm">Keep grinding — your next level awaits.</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card cyan"><div class="stat-label">XP Points</div><div class="stat-value cyan" id="dash-xp">0</div></div>
+      <div class="stat-card purple"><div class="stat-label">Level</div><div class="stat-value purple" id="dash-level">1</div></div>
+      <div class="stat-card gold"><div class="stat-label">GPA / GWA</div><div class="stat-value gold" id="dash-gpa">—</div></div>
+      <div class="stat-card green"><div class="stat-label">Quizzes Done</div><div class="stat-value green" id="dash-quizzes">0</div></div>
+    </div>
+    <div class="xp-section mb-6">
+      <div class="xp-header">
+        <span class="font-mono" style="font-size:0.85rem" id="xp-label">XP Progress</span>
+        <span class="font-mono" style="font-size:0.85rem;color:var(--accent)" id="xp-pct">0%</span>
+      </div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+      <p class="text-sm text-muted mt-4" id="xp-next-label"></p>
+    </div>
+    <div class="mb-2" style="font-family:'Orbitron',monospace;font-size:0.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Badges & Achievements</div>
+    <div class="badges-grid" id="dash-badges"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="tab-leaderboard" class="content fade-up" style="display:none">
+    <div class="mb-6">
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:4px">🏆 Hall of Champions</h2>
+      <p class="text-muted text-sm">Rankings update in real-time as you complete quizzes.</p>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      <table class="lb-table">
+        <thead><tr>
+          <th>Rank</th><th>Student</th><th>GPA</th><th>XP</th><th>Level</th><th>Quiz Score</th>
+        </tr></thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GAMES HUB -->
+  <div id="tab-games" class="content fade-up" style="display:none">
+    <div class="mb-6">
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:4px">🎮 Entertainment Hub</h2>
+      <p class="text-muted text-sm">Answer correctly to earn XP and climb the leaderboard!</p>
+    </div>
+    <div class="games-grid" id="games-grid"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="tab-profile" class="content fade-up" style="display:none">
+    <div class="mb-6">
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.4rem;margin-bottom:4px">🧑‍🚀 Your Profile</h2>
+      <p class="text-muted text-sm">Customize your identity. Unlock more as you level up!</p>
+    </div>
+    <div class="profile-grid">
+      <div>
+        <div class="profile-card mb-4">
+          <div class="profile-avatar-lg" id="profile-avatar-lg">😊</div>
+          <div class="profile-name" id="profile-name-display"></div>
+          <div class="profile-title" id="profile-title-display">Level 1 Explorer</div>
+          <div style="margin-top:12px" id="profile-badges-row"></div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <div class="section-title">Change Password</div>
+          <input type="password" id="new-pw" placeholder="New password" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:1rem;margin-bottom:10px;">
+          <button class="btn btn-success btn-sm" onclick="changePassword()">Save Password</button>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;">
+          <div class="section-title">Choose Avatar</div>
+          <div class="avatar-picker" id="avatar-picker"></div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;">
+          <div class="section-title">Profile Theme</div>
+          <div class="theme-picker" id="theme-picker"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="tab-admin" class="content fade-up" style="display:none">
+    <div class="mb-6 flex items-center gap-3">
+      <h2 style="font-family:'Orbitron',monospace;font-size:1.4rem">⚙ Admin Panel</h2>
+      <span class="admin-badge">Admin Only</span>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;">
+      <div class="section-title">Manage Student GPA / XP</div>
+      <table class="admin-table" id="admin-table">
+        <thead><tr><th>Student</th><th>GPA</th><th>XP</th><th>Level</th><th>Actions</th></tr></thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div class="section-title">Add New Student</div>
+        <div class="grid-2">
+          <div>
+            <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:6px;">Full Name</label>
+            <input type="text" id="new-student-name" placeholder="Student name" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:1rem;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:6px;">GPA</label>
+            <input type="number" id="new-student-gpa" placeholder="e.g. 1.50" step="0.25" min="1" max="5" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:1rem;">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="addStudent()">+ Add Student</button>
+      </div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;">
+      <div class="section-title">Quiz Scores Overview</div>
+      <table class="admin-table">
+        <thead><tr><th>Student</th><th>CP Quiz</th><th>HCI Quiz</th><th>FIS Quiz</th><th>Total Score</th></tr></thead>
+        <tbody id="admin-quiz-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ QUIZ MODAL ══════════════════ -->
+<div class="modal-overlay" id="quiz-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="quiz-modal-title">Quiz</span>
+      <button class="close-btn" onclick="closeQuiz()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+      <div id="quiz-content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════════
+const GPA_XP = {1.0:1000,1.25:950,1.5:900,1.75:850,2.0:800,2.25:750,2.5:700,2.75:650,3.0:600,3.25:550,3.5:500,4.0:400,5.0:200};
+
+const LEVELS = [
+  {level:1,title:"Explorer",min:0,max:300,xpNeeded:300},
+  {level:2,title:"Apprentice",min:300,max:500,xpNeeded:500},
+  {level:3,title:"Scholar",min:500,max:650,xpNeeded:650},
+  {level:4,title:"Champion",min:650,max:750,xpNeeded:750},
+  {level:5,title:"Master",min:750,max:850,xpNeeded:850},
+  {level:6,title:"Grandmaster",min:850,max:900,xpNeeded:900},
+  {level:7,title:"Legend",min:900,max:950,xpNeeded:950},
+  {level:8,title:"Elite",min:950,max:980,xpNeeded:980},
+  {level:9,title:"Mythic",min:980,max:1000,xpNeeded:1000},
+  {level:10,title:"Supreme",min:1000,max:9999,xpNeeded:9999},
+];
+
+const ALL_BADGES = [
+  {id:"first_quiz",icon:"🎯",name:"First Quest",desc:"Complete your first quiz",xpReq:0,quizReq:1},
+  {id:"tri_quiz",icon:"🔥",name:"On Fire",desc:"Complete 3 quizzes",xpReq:0,quizReq:3},
+  {id:"six_quiz",icon:"⚡",name:"Unstoppable",desc:"Complete 6 quizzes",xpReq:0,quizReq:6},
+  {id:"perfect",icon:"💎",name:"Perfectionist",desc:"Score 100% on any quiz",xpReq:0,quizReq:0,special:"perfect"},
+  {id:"high_xp",icon:"🌟",name:"Star Student",desc:"Reach 900+ XP",xpReq:900,quizReq:0},
+  {id:"level5",icon:"👑",name:"Royalty",desc:"Reach Level 5",xpReq:850,quizReq:0},
+  {id:"level8",icon:"🏆",name:"Hall of Fame",desc:"Reach Level 8",xpReq:950,quizReq:0},
+  {id:"cp_master",icon:"💻",name:"Code Wizard",desc:"Complete CP quiz",xpReq:0,quizReq:0,special:"cp"},
+  {id:"hci_master",icon:"🖥️",name:"UX Guru",desc:"Complete HCI quiz",xpReq:0,quizReq:0,special:"hci"},
+  {id:"fis_master",icon:"📊",name:"Info Sage",desc:"Complete FIS quiz",xpReq:0,quizReq:0,special:"fis"},
+];
+
+const AVATARS = ["😊","😎","🧑‍💻","👩‍🎓","🧙‍♂️","🦸","🥷","🧑‍🚀","🦊","🐉","⚡","🌟","💎","🔥","🌈"];
+const AVATAR_UNLOCK = [0,0,0,0,2,3,5,5,6,7,8,6,8,5,9]; // level needed
+
+const THEMES = [
+  {id:"cyber",name:"Cyber",bg:"linear-gradient(135deg,#00d4ff,#7c3aed)",levelReq:1},
+  {id:"fire",name:"Fire",bg:"linear-gradient(135deg,#f59e0b,#ef4444)",levelReq:3},
+  {id:"forest",name:"Forest",bg:"linear-gradient(135deg,#10b981,#065f46)",levelReq:2},
+  {id:"galaxy",name:"Galaxy",bg:"linear-gradient(135deg,#6366f1,#0ea5e9)",levelReq:4},
+  {id:"gold",name:"Gold",bg:"linear-gradient(135deg,#f59e0b,#78350f)",levelReq:6},
+  {id:"void",name:"Void",bg:"linear-gradient(135deg,#1e1b4b,#000000)",levelReq:8},
+];
+
+// Quiz questions
+const QUIZZES = {
+  cp: {
+    title:"Computer Programming",emoji:"💻",color:"cp",xpReward:50,
+    questions:[
+      {q:"What does HTML stand for?",opts:["HyperText Markup Language","High-Tech Modern Language","Hyperlink and Text Markup Language","HyperTransfer Markup Language"],a:0,exp:"HTML stands for HyperText Markup Language — the standard markup language for creating web pages."},
+      {q:"Which symbol is used for comments in Python?",opts:["//","/*","#","--"],a:2,exp:"In Python, the # symbol is used to write single-line comments."},
+      {q:"What is the output of: print(2 ** 3) in Python?",opts:["5","6","8","9"],a:2,exp:"The ** operator in Python means 'to the power of'. 2 ** 3 = 2³ = 8."},
+      {q:"Which data type stores True or False values?",opts:["Integer","String","Boolean","Float"],a:2,exp:"Boolean is the data type that stores True or False values."},
+      {q:"What does a 'for loop' do in programming?",opts:["Stops the program","Repeats a block of code","Declares a variable","Defines a function"],a:1,exp:"A for loop repeats a block of code a specific number of times or over a sequence."},
+      {q:"Which of these is NOT a programming language?",opts:["Python","JavaScript","HTML","Java"],a:2,exp:"HTML is a markup language, not a programming language. Python, JavaScript, and Java are programming languages."},
+      {q:"What is a variable in programming?",opts:["A fixed number","A storage location with a name","A type of loop","A function"],a:1,exp:"A variable is a named storage location in memory that holds data which can change during program execution."},
+      {q:"What does 'int' represent in most programming languages?",opts:["Internal","Integer","Interval","Interface"],a:1,exp:"'int' represents Integer — a whole number data type (e.g., 1, 42, -7)."},
+    ]
+  },
+  hci: {
+    title:"Human-Computer Interaction",emoji:"🖥️",color:"hci",xpReward:55,
+    questions:[
+      {q:"What does HCI stand for?",opts:["High Computer Interface","Human-Computer Interaction","Hybrid Computing Integration","Human Control Interface"],a:1,exp:"HCI stands for Human-Computer Interaction — the study of how people interact with computers."},
+      {q:"What is 'usability' in HCI?",opts:["How fast a computer runs","How easy a system is to use","The security of software","The cost of a device"],a:1,exp:"Usability refers to how easy and efficient a system is to use, including learnability, efficiency, and satisfaction."},
+      {q:"Who is considered the father of HCI?",opts:["Steve Jobs","Douglas Engelbart","Vannevar Bush","Alan Turing"],a:1,exp:"Douglas Engelbart is often considered a pioneer of HCI — he invented the computer mouse and developed early interactive computing."},
+      {q:"What does 'UI' stand for?",opts:["User Integration","Universal Interface","User Interface","Unified Input"],a:2,exp:"UI stands for User Interface — the visual elements through which a user interacts with a system."},
+      {q:"Which of these is an example of an input device?",opts:["Monitor","Printer","Speaker","Keyboard"],a:3,exp:"A keyboard is an input device — it sends data from the user to the computer. Monitors, printers, and speakers are output devices."},
+      {q:"What principle states design should be easy to understand without instructions?",opts:["Affordance","Feedback","Learnability","Intuitive Design"],a:3,exp:"Intuitive Design (also related to Learnability) means users can understand and use a system without needing instructions."},
+      {q:"What is a 'prototype' in UX design?",opts:["The final product","An early model to test ideas","A type of survey","A programming method"],a:1,exp:"A prototype is an early model or mock-up created to test and refine design ideas before building the final product."},
+      {q:"What does 'accessibility' mean in HCI?",opts:["Speed of the system","Design for users with disabilities","Cost of the software","Number of features"],a:1,exp:"Accessibility means designing systems that can be used by people with various disabilities, ensuring equal access for all users."},
+    ]
+  },
+  fis: {
+    title:"Fundamentals of Information Systems",emoji:"📊",color:"fis",xpReward:60,
+    questions:[
+      {q:"What is an Information System (IS)?",opts:["Only software","A combination of hardware, software, data, people, and processes","Only hardware","A type of database"],a:1,exp:"An Information System combines hardware, software, data, people, and processes to collect, process, store, and distribute information."},
+      {q:"Which component of IS refers to the raw facts and figures?",opts:["People","Process","Data","Hardware"],a:2,exp:"Data refers to the raw, unprocessed facts and figures. When processed, data becomes information."},
+      {q:"What does DBMS stand for?",opts:["Data Backup Management System","Database Management System","Digital Business Management Software","Distributed Base Management System"],a:1,exp:"DBMS stands for Database Management System — software that manages databases, like MySQL or Oracle."},
+      {q:"What is the primary purpose of a Transaction Processing System (TPS)?",opts:["Strategic planning","Process daily business transactions","Analyze data","Support decisions"],a:1,exp:"A TPS processes day-to-day business transactions like sales, payroll, and inventory updates automatically."},
+      {q:"Which type of IS helps managers make decisions?",opts:["TPS","MIS","ERP","DSS"],a:3,exp:"A DSS (Decision Support System) is specifically designed to help managers analyze information and make decisions."},
+      {q:"What does 'cloud computing' primarily mean?",opts:["Computing using weather data","Storing and accessing data over the internet","Using only local storage","A type of network cable"],a:1,exp:"Cloud computing means storing and accessing data and programs over the internet instead of your computer's hard drive."},
+      {q:"Which of these is an example of output in an IS?",opts:["Keyboard input","A report generated by the system","Raw survey data","Network cables"],a:1,exp:"Output is processed information presented to users — like reports, charts, or printed documents generated by the system."},
+      {q:"What is 'data integrity' in information systems?",opts:["Speed of data transfer","Accuracy and consistency of data","Amount of data stored","Security of network"],a:1,exp:"Data integrity refers to the accuracy, consistency, and reliability of data stored in a database or information system."},
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════════
+// DEFAULT STUDENT DATA
+// ══════════════════════════════════════════════════
+function getDefaultStudents() {
+  return [
+    {id:"arren",name:"Arren Philip Solquia",gpa:1.5,password:"arren123",avatar:"😊",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+    {id:"james",name:"James Victor Endaya",gpa:1.5,password:"james123",avatar:"😎",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+    {id:"lan",name:"Lan Bucad",gpa:2.0,password:"lan123",avatar:"🧑‍💻",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+    {id:"patriz",name:"Patriz Ysabel",gpa:1.25,password:"patriz123",avatar:"👩‍🎓",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+    {id:"alexis",name:"Alexis Destreza",gpa:1.25,password:"alexis123",avatar:"🧙‍♂️",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+    {id:"student6",name:"Student Six",gpa:1.75,password:"student6",avatar:"🦸",theme:"cyber",unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0},
+  ];
+}
+
+// Load or init data
+function loadData() {
+  const raw = localStorage.getItem("eduquest_data");
+  if (raw) return JSON.parse(raw);
+  const d = {students: getDefaultStudents()};
+  saveData(d); return d;
+}
+function saveData(d) { localStorage.setItem("eduquest_data",JSON.stringify(d)); }
+
+let DB = loadData();
+let currentUser = null;
+let currentQuiz = null;
+let quizState = {};
+
+// ── GPA → XP ──
+function gpaToXP(gpa) {
+  const keys = Object.keys(GPA_XP).map(Number).sort((a,b)=>a-b);
+  let closest = keys[0];
+  for (const k of keys) { if (Math.abs(k-gpa) <= Math.abs(closest-gpa)) closest=k; }
+  return GPA_XP[closest];
+}
+
+function getLevel(xp) {
+  for (let i=LEVELS.length-1;i>=0;i--) { if (xp>=LEVELS[i].min) return LEVELS[i]; }
+  return LEVELS[0];
+}
+
+function getTotalXP(student) {
+  let base = gpaToXP(student.gpa);
+  let bonus = 0;
+  for (const k in student.quizScores) { bonus += student.quizScores[k].xpEarned||0; }
+  return base + bonus;
+}
+
+// ══════════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════════
+(function(){
+  const c = document.getElementById('particles');
+  for (let i=0;i<25;i++) {
+    const p = document.createElement('div');
+    p.className='particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDuration = (8+Math.random()*12)+'s';
+    p.style.animationDelay = (Math.random()*10)+'s';
+    p.style.width = p.style.height = (1+Math.random()*2)+'px';
+    c.appendChild(p);
+  }
+})();
+
+// ══════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════
+function populateLoginSelect() {
+  const sel = document.getElementById('login-select');
+  sel.innerHTML='<option value="">— Choose your name —</option>';
+  DB.students.forEach(s => {
+    const o=document.createElement('option');
+    o.value=s.id; o.textContent=s.name;
+    sel.appendChild(o);
+  });
+}
+
+function doLogin() {
+  const sel = document.getElementById('login-select').value;
+  const pw = document.getElementById('login-pass').value;
+  if (!sel && pw !== 'admin123') { showNotif('Please select your name!','error'); return; }
+  // Admin check
+  if (pw==='admin123' && sel==='') {
+    currentUser={id:'admin',name:'Administrator',isAdmin:true};
+    showApp(); return;
+  }
+  const student = DB.students.find(s=>s.id===sel);
+  if (!student) { showNotif('Please select your name!','error'); return; }
+  if (pw !== student.password) { showNotif('Wrong password!','error'); return; }
+  currentUser = student;
+  showApp();
+}
+
+function doLogout() {
+  currentUser=null;
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('login-pass').value='';
+  populateLoginSelect();
+}
+
+function showApp() {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  document.getElementById('topbar-name').textContent = currentUser.isAdmin ? 'Admin' : currentUser.name.split(' ')[0];
+  document.getElementById('topbar-avatar').textContent = currentUser.isAdmin ? '⚙' : currentUser.avatar;
+  document.getElementById('admin-nav-btn').style.display = currentUser.isAdmin ? 'block' : 'none';
+  switchTab(currentUser.isAdmin ? 'admin' : 'dashboard');
+}
+
+// ══════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t=>t.style.display='none');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).style.display='block';
+  document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.textContent.toLowerCase().includes(tab)||b.getAttribute('onclick')?.includes(tab)) b.classList.add('active'); });
+  const renders = {dashboard:renderDashboard,leaderboard:renderLeaderboard,games:renderGames,profile:renderProfile,admin:renderAdmin};
+  if (renders[tab]) renders[tab]();
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDashboard() {
+  if (currentUser.isAdmin) { document.getElementById('tab-dashboard').innerHTML='<div class="content"><p style="color:var(--muted)">Admin view — use the Admin tab to manage students.</p></div>'; return; }
+  const s = DB.students.find(x=>x.id===currentUser.id);
+  const totalXP = getTotalXP(s);
+  const lvl = getLevel(totalXP);
+  document.getElementById('dash-greeting').textContent = `Welcome back, ${s.name.split(' ')[0]}! 👾`;
+  document.getElementById('dash-xp').textContent = totalXP.toLocaleString();
+  document.getElementById('dash-level').textContent = lvl.level;
+  document.getElementById('dash-gpa').textContent = s.gpa.toFixed(2);
+  document.getElementById('dash-quizzes').textContent = s.quizDone||0;
+  // XP bar
+  const nextLvl = LEVELS[Math.min(lvl.level,LEVELS.length-1)];
+  const pct = Math.min(100, Math.round(((totalXP-lvl.min)/(lvl.max-lvl.min))*100));
+  document.getElementById('xp-bar').style.width = pct+'%';
+  document.getElementById('xp-pct').textContent = pct+'%';
+  document.getElementById('xp-label').textContent = `Level ${lvl.level} · ${lvl.title}`;
+  document.getElementById('xp-next-label').textContent = lvl.level<10 ? `${lvl.max - totalXP} XP to Level ${lvl.level+1} (${LEVELS[lvl.level].title})` : '🏆 MAX LEVEL ACHIEVED!';
+  // Badges
+  checkBadges(s);
+  const grid = document.getElementById('dash-badges');
+  grid.innerHTML='';
+  ALL_BADGES.forEach(b=>{
+    const unlocked = s.badges&&s.badges.includes(b.id);
+    const div=document.createElement('div');
+    div.className='badge-item '+(unlocked?'unlocked':'locked');
+    div.innerHTML=`<span class="badge-icon">${b.icon}</span><span class="badge-name">${b.name}</span>`;
+    div.title=b.desc;
+    grid.appendChild(div);
+  });
+}
+
+function checkBadges(s) {
+  if (!s.badges) s.badges=[];
+  const xp = getTotalXP(s);
+  const lvl = getLevel(xp);
+  const newBadges=[];
+  ALL_BADGES.forEach(b=>{
+    if (s.badges.includes(b.id)) return;
+    let earn=false;
+    if (b.xpReq && xp>=b.xpReq) earn=true;
+    if (b.quizReq && (s.quizDone||0)>=b.quizReq) earn=true;
+    if (b.special==='perfect' && s.badges && s.perfectScore) earn=true;
+    if (b.special==='cp' && s.quizScores&&s.quizScores.cp) earn=true;
+    if (b.special==='hci' && s.quizScores&&s.quizScores.hci) earn=true;
+    if (b.special==='fis' && s.quizScores&&s.quizScores.fis) earn=true;
+    if (earn) { s.badges.push(b.id); newBadges.push(b); }
+  });
+  // Unlock avatars by level
+  AVATAR_UNLOCK.forEach((req,i)=>{ if(lvl.level>=req && !s.unlockedAvatars.includes(i)) s.unlockedAvatars.push(i); });
+  if (newBadges.length) { saveData(DB); newBadges.forEach(b=>showNotif(`🏅 Badge Unlocked: ${b.name}!`,'gold')); }
+  else saveData(DB);
+}
+
+// ══════════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════════
+function renderLeaderboard() {
+  const sorted = [...DB.students].sort((a,b)=>getTotalXP(b)-getTotalXP(a));
+  const tbody = document.getElementById('lb-body');
+  tbody.innerHTML='';
+  sorted.forEach((s,i)=>{
+    const xp=getTotalXP(s);
+    const lvl=getLevel(xp);
+    const totalQScore = Object.values(s.quizScores||{}).reduce((sum,q)=>sum+(q.score||0),0);
+    const totalQMax = Object.values(s.quizScores||{}).reduce((sum,q)=>sum+(q.total||0),0);
+    const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+    const trophy = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const isMe = !currentUser.isAdmin && s.id===currentUser.id;
+    const tr=document.createElement('tr');
+    tr.className='lb-row';
+    if(isMe) tr.style.background='rgba(0,212,255,0.05)';
+    tr.innerHTML=`
+      <td><span class="lb-rank ${rankClass}">${trophy||('#'+(i+1))}</span></td>
+      <td><div class="flex items-center gap-2">
+        <div class="lb-avatar">${s.avatar||'😊'}</div>
+        <div>
+          <div class="lb-name">${s.name}${isMe?'<span class="tag tag-cyan" style="margin-left:8px;font-size:0.6rem">YOU</span>':''}</div>
+          <div class="text-sm text-muted">${lvl.title}</div>
+        </div>
+      </div></td>
+      <td><span class="lb-gpa">${s.gpa.toFixed(2)}</span></td>
+      <td><span class="lb-xp">⚡ ${xp.toLocaleString()}</span></td>
+      <td><span class="lb-level">LVL ${lvl.level}</span></td>
+      <td>${totalQMax>0?`<span class="quiz-score-badge">${totalQScore}/${totalQMax}</span>`:'<span class="text-muted">—</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// GAMES HUB
+// ══════════════════════════════════════════════════
+function renderGames() {
+  const grid = document.getElementById('games-grid');
+  grid.innerHTML='';
+  const quizKeys = ['cp','hci','fis'];
+  quizKeys.forEach(key=>{
+    const q=QUIZZES[key];
+    const s = currentUser.isAdmin ? null : DB.students.find(x=>x.id===currentUser.id);
+    const done = s && s.quizScores && s.quizScores[key];
+    const card=document.createElement('div');
+    card.className='game-card';
+    card.onclick=()=>startQuiz(key);
+    card.innerHTML=`
+      <div class="game-thumb ${q.color}">
+        <span style="font-size:4rem">${q.emoji}</span>
+        ${done?'<div style="position:absolute;top:10px;right:10px;background:var(--accent4);color:#fff;padding:4px 10px;border-radius:20px;font-size:0.7rem;font-family:\'Orbitron\',monospace">✓ DONE</div>':''}
+      </div>
+      <div class="game-info">
+        <div class="game-subject">${['Computer Programming','Human-Computer Interaction','Fund. of Information Systems'][['cp','hci','fis'].indexOf(key)]}</div>
+        <div class="game-title">${q.title} Quiz</div>
+        <div class="game-desc">${q.questions.length} questions · Multiple choice · Earn XP</div>
+        <div class="game-meta">
+          <div class="difficulty">
+            ${[1,2,3,4,5].map((_,i)=>`<div class="diff-dot ${i<(['cp','hci','fis'].indexOf(key)+3)?'active':''}"></div>`).join('')}
+          </div>
+          <span class="xp-reward">+${q.xpReward} XP</span>
+        </div>
+        ${done?`<div style="margin-top:8px;font-size:0.8rem;color:var(--accent4)">Score: ${s.quizScores[key].score}/${s.quizScores[key].total} · +${s.quizScores[key].xpEarned} XP earned</div>`:''}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// QUIZ ENGINE
+// ══════════════════════════════════════════════════
+function startQuiz(key) {
+  if (currentUser.isAdmin) { showNotif('Admins cannot take quizzes.','error'); return; }
+  currentQuiz=key;
+  const q=QUIZZES[key];
+  quizState={key,questions:shuffleArr([...q.questions]),current:0,score:0,total:q.questions.length,answers:[],finished:false};
+  document.getElementById('quiz-modal-title').textContent=`${q.emoji} ${q.title}`;
+  document.getElementById('quiz-modal').style.display='flex';
+  renderQuestion();
+}
+
+function shuffleArr(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+
+function renderQuestion() {
+  const {questions,current,total}=quizState;
+  const pct = Math.round((current/total)*100);
+  document.getElementById('quiz-progress').style.width=pct+'%';
+  if (current>=total) { showResult(); return; }
+  const q=questions[current];
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="question-num">Question ${current+1} of ${total}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options" id="options">
+      ${q.opts.map((opt,i)=>`<button class="option" onclick="selectAnswer(${i})">${opt}</button>`).join('')}
+    </div>
+  `;
+}
+
+function selectAnswer(idx) {
+  const q=quizState.questions[quizState.current];
+  const opts=document.querySelectorAll('.option');
+  opts.forEach(o=>o.classList.add('disabled'));
+  const correct=q.a===idx;
+  opts[idx].classList.add(correct?'correct':'wrong');
+  if(!correct) opts[q.a].classList.add('correct');
+  if(correct) quizState.score++;
+  quizState.answers.push({q:q.q,chosen:idx,correct:q.a,right:correct});
+  // Show explanation
+  const exp=document.createElement('div');
+  exp.className='answer-feedback '+(correct?'correct':'wrong');
+  exp.innerHTML=`${correct?'✓ Correct!':'✗ Wrong!'} — ${q.exp}`;
+  document.getElementById('options').after(exp);
+  const btn=document.createElement('button');
+  btn.className='btn btn-primary';
+  btn.textContent=quizState.current+1>=quizState.total?'See Results':'Next Question →';
+  btn.onclick=()=>{quizState.current++;renderQuestion();};
+  exp.after(btn);
+}
+
+function showResult() {
+  const {score,total,key}=quizState;
+  const q=QUIZZES[key];
+  const pct=Math.round((score/total)*100);
+  const xpEarned = Math.round(q.xpReward*(score/total));
+  // Save score
+  const s=DB.students.find(x=>x.id===currentUser.id);
+  const prev=s.quizScores[key];
+  const isNew=!prev||(score>prev.score);
+  if (!s.quizScores) s.quizScores={};
+  s.quizScores[key]={score,total,xpEarned,pct};
+  s.quizDone=(s.quizDone||0)+(prev?0:1);
+  if(pct===100) s.perfectScore=true;
+  checkBadges(s);
+  saveData(DB);
+  document.getElementById('quiz-progress').style.width='100%';
+  document.getElementById('quiz-content').innerHTML=`
+    <div class="quiz-result">
+      <div class="confetti-line">${pct>=80?'🎉🎊🎉':'💪📚💪'}</div>
+      <div class="result-score">${score}/${total}</div>
+      <div style="font-size:1.1rem;color:var(--muted);margin:4px 0">${pct}% Correct</div>
+      <div class="result-xp">+${xpEarned} XP Earned!</div>
+      ${isNew&&prev?'<div style="color:var(--accent4);font-size:0.9rem;margin-top:4px">🆕 New high score!</div>':''}
+      <div style="margin:20px 0;padding:16px;background:var(--bg2);border-radius:10px;text-align:left">
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px">Answer Review</div>
+        ${quizState.answers.map((a,i)=>`
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.9rem">
+            <span style="color:${a.right?'var(--accent4)':'var(--red)'}">${a.right?'✓':'✗'}</span>
+            Q${i+1}: ${a.q.substring(0,50)}...
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-primary" onclick="closeQuiz();switchTab('leaderboard')">View Leaderboard</button>
+      <button class="btn btn-secondary" onclick="closeQuiz()" style="margin-left:10px;width:auto;padding:14px 20px">Close</button>
+    </div>
+  `;
+}
+
+function closeQuiz() {
+  document.getElementById('quiz-modal').style.display='none';
+  currentQuiz=null;
+  renderGames();
+}
+
+// ══════════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════════
+function renderProfile() {
+  if (currentUser.isAdmin) { document.getElementById('tab-profile').innerHTML='<div class="content"><p style="color:var(--muted)">Admin does not have a profile.</p></div>'; return; }
+  const s=DB.students.find(x=>x.id===currentUser.id);
+  const xp=getTotalXP(s);
+  const lvl=getLevel(xp);
+  document.getElementById('profile-avatar-lg').textContent=s.avatar||'😊';
+  document.getElementById('profile-name-display').textContent=s.name;
+  document.getElementById('profile-title-display').textContent=`Level ${lvl.level} · ${lvl.title}`;
+  // Badge row
+  const row=document.getElementById('profile-badges-row');
+  row.innerHTML=(s.badges||[]).map(id=>{const b=ALL_BADGES.find(x=>x.id===id);return b?`<span title="${b.name}" style="font-size:1.4rem">${b.icon}</span>`:''}).join(' ');
+  // Avatar picker
+  const picker=document.getElementById('avatar-picker');
+  picker.innerHTML='';
+  AVATARS.forEach((av,i)=>{
+    const unlocked=(s.unlockedAvatars||[]).includes(i);
+    const div=document.createElement('div');
+    div.className=`avatar-opt ${s.avatar===av?'selected':''} ${unlocked?'':'locked'}`;
+    div.textContent=av;
+    if(unlocked) div.onclick=()=>{s.avatar=av;currentUser.avatar=av;saveData(DB);document.getElementById('topbar-avatar').textContent=av;renderProfile();};
+    else div.title=`Unlock at Level ${AVATAR_UNLOCK[i]}`;
+    picker.appendChild(div);
+  });
+  // Theme picker
+  const themePicker=document.getElementById('theme-picker');
+  themePicker.innerHTML='';
+  THEMES.forEach(t=>{
+    const unlocked=lvl.level>=t.levelReq;
+    const div=document.createElement('div');
+    div.className=`theme-opt ${s.theme===t.id?'selected':''}`;
+    div.style.background=t.bg;
+    if(!unlocked){div.classList.add('locked');div.title=`Unlock at Level ${t.levelReq}`;}
+    else div.onclick=()=>{s.theme=t.id;saveData(DB);renderProfile();};
+    themePicker.appendChild(div);
+  });
+}
+
+function changePassword() {
+  const pw=document.getElementById('new-pw').value.trim();
+  if(!pw||pw.length<4){showNotif('Password must be at least 4 characters!','error');return;}
+  const s=DB.students.find(x=>x.id===currentUser.id);
+  s.password=pw;
+  saveData(DB);
+  document.getElementById('new-pw').value='';
+  showNotif('Password updated! ✓');
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════════════
+function renderAdmin() {
+  const tbody=document.getElementById('admin-tbody');
+  tbody.innerHTML='';
+  DB.students.forEach(s=>{
+    const xp=getTotalXP(s);
+    const lvl=getLevel(xp);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><strong>${s.name}</strong></td>
+      <td><input type="number" value="${s.gpa}" step="0.25" min="1" max="5" onchange="updateGPA('${s.id}',this.value)"></td>
+      <td class="font-mono" style="color:var(--accent)">${xp}</td>
+      <td><span class="lb-level">LVL ${lvl.level}</span></td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // Quiz overview
+  const qtbody=document.getElementById('admin-quiz-tbody');
+  qtbody.innerHTML='';
+  DB.students.forEach(s=>{
+    const tr=document.createElement('tr');
+    const cp=s.quizScores?.cp;
+    const hci=s.quizScores?.hci;
+    const fis=s.quizScores?.fis;
+    const total=(cp?.score||0)+(hci?.score||0)+(fis?.score||0);
+    const max=(cp?.total||0)+(hci?.total||0)+(fis?.total||0);
+    tr.innerHTML=`
+      <td><strong>${s.name}</strong></td>
+      <td>${cp?`<span class="quiz-score-badge">${cp.score}/${cp.total}</span>`:'<span class="text-muted">—</span>'}</td>
+      <td>${hci?`<span class="quiz-score-badge">${hci.score}/${hci.total}</span>`:'<span class="text-muted">—</span>'}</td>
+      <td>${fis?`<span class="quiz-score-badge">${fis.score}/${fis.total}</span>`:'<span class="text-muted">—</span>'}</td>
+      <td>${max>0?`<span class="lb-xp">${total}/${max}</span>`:'<span class="text-muted">—</span>'}</td>
+    `;
+    qtbody.appendChild(tr);
+  });
+  populateLoginSelect();
+}
+
+function updateGPA(id, val) {
+  const s=DB.students.find(x=>x.id===id);
+  if(!s) return;
+  s.gpa=parseFloat(val);
+  saveData(DB);
+  showNotif(`Updated GPA for ${s.name.split(' ')[0]}`);
+  renderAdmin();
+}
+
+function deleteStudent(id) {
+  if(!confirm('Delete this student?')) return;
+  DB.students=DB.students.filter(s=>s.id!==id);
+  saveData(DB);
+  showNotif('Student removed.');
+  renderAdmin();
+}
+
+function addStudent() {
+  const name=document.getElementById('new-student-name').value.trim();
+  const gpa=parseFloat(document.getElementById('new-student-gpa').value);
+  if(!name){showNotif('Enter a name!','error');return;}
+  if(!gpa||gpa<1||gpa>5){showNotif('GPA must be 1.0–5.0','error');return;}
+  const id='s_'+Date.now();
+  DB.students.push({id,name,gpa,password:id.slice(-6),avatar:'😊',theme:'cyber',unlockedAvatars:[0,1,2,3],badges:[],quizScores:{},quizDone:0});
+  saveData(DB);
+  document.getElementById('new-student-name').value='';
+  document.getElementById('new-student-gpa').value='';
+  showNotif(`${name} added! Default password: ${id.slice(-6)}`);
+  renderAdmin();
+}
+
+// ══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════
+function showNotif(msg, type='success') {
+  const n=document.createElement('div');
+  n.className='notif '+(type==='error'?'error':type==='gold'?'gold':'');
+  n.textContent=msg;
+  document.body.appendChild(n);
+  setTimeout(()=>n.remove(),3500);
+}
+
+// Init
+populateLoginSelect();
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>

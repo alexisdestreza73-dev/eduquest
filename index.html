@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduQuest — Level Up Your Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Palette from image */
+  --navy:#2F4156;--navy-d:#1E2D3D;--navy-deep:#131D28;
+  --teal:#567C8D;--teal-d:#3F5E6D;--teal-l:#6B95A8;
+  --sky:#C8D9E6;--sky-l:#DCE9F2;--sky-ll:#EEF4F9;
+  --beige:#F5EFEB;--beige-d:#EDE5DF;--white:#FFFFFF;
+  --text-dark:#1E2D3D;--text-mid:#3D5470;--text-soft:#567C8D;--text-muted:#8AAFC0;
+  --green:#2D6A4F;--green-bg:rgba(45,106,79,0.09);
+  --red:#C0392B;--red-bg:rgba(192,57,43,0.08);
+  --gold:#C9962B;--gold-l:#E8B84B;
+  --r:14px;--r-sm:9px;--r-xs:5px;
+  --sh:0 2px 12px rgba(47,65,86,0.1);
+  --sh-md:0 6px 24px rgba(47,65,86,0.14);
+  --sh-lg:0 12px 40px rgba(47,65,86,0.18);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.65;min-height:100vh;overflow-x:hidden;color:var(--text-dark);}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ══════════ LOGIN ══════════ */
+#login-screen{
+  background:var(--navy-deep);
+  align-items:center;justify-content:center;padding:20px;
+  position:relative;overflow:hidden;
+}
+/* Animated dot grid */
+#login-screen::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(86,124,141,0.5) 1.5px,transparent 1.5px),
+    radial-gradient(circle,rgba(47,65,86,0.4) 1px,transparent 1px);
+  background-size:70px 70px,35px 35px;background-position:0 0,17px 17px;
+  animation:gridDrift 20s linear infinite;
+}
+@keyframes gridDrift{0%{background-position:0 0,17px 17px;}100%{background-position:70px 70px,52px 52px;}}
+/* Glowing orbs */
+#login-screen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 15% 40%,rgba(86,124,141,0.22) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 20%,rgba(47,65,86,0.3) 0%,transparent 45%),
+    radial-gradient(ellipse at 60% 80%,rgba(86,124,141,0.15) 0%,transparent 40%);
+}
+/* Scanning lines */
+.l-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(86,124,141,0.5),transparent);animation:scanLine 7s linear infinite;}
+.l-line:nth-child(1){width:55%;top:25%;left:-10%;animation-delay:0s;}
+.l-line:nth-child(2){width:70%;top:52%;left:20%;animation-delay:2.8s;}
+.l-line:nth-child(3){width:40%;top:75%;left:5%;animation-delay:5.2s;}
+@keyframes scanLine{0%{transform:translateX(-100%);opacity:0;}20%{opacity:1;}80%{opacity:1;}100%{transform:translateX(250%);opacity:0;}}
+/* Pulsing nodes */
+.l-node{position:absolute;border-radius:50%;animation:nodePulse 4s ease-in-out infinite;}
+.l-node:nth-child(4){width:9px;height:9px;background:rgba(100,200,240,0.8);top:25%;left:13%;box-shadow:0 0 16px rgba(100,200,240,0.6);animation-delay:0s;}
+.l-node:nth-child(5){width:6px;height:6px;background:rgba(86,124,141,0.9);top:64%;left:76%;box-shadow:0 0 10px rgba(86,124,141,0.6);animation-delay:1.2s;}
+.l-node:nth-child(6){width:7px;height:7px;background:rgba(100,200,240,0.7);top:38%;left:86%;box-shadow:0 0 12px rgba(100,200,240,0.5);animation-delay:2.4s;}
+.l-node:nth-child(7){width:5px;height:5px;background:rgba(86,124,141,1);top:78%;left:22%;box-shadow:0 0 8px rgba(86,124,141,0.7);animation-delay:3.6s;}
+@keyframes nodePulse{0%,100%{opacity:0.4;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
+/* Connection lines SVG-like effect */
+.l-conn{position:absolute;pointer-events:none;width:100%;height:100%;top:0;left:0;}
+
+.login-card{
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(86,124,141,0.3);
+  border-radius:22px;padding:44px 40px;
+  width:100%;max-width:420px;
+  position:relative;z-index:10;
+  box-shadow:0 12px 48px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+@media(max-width:480px){.login-card{padding:30px 22px;}}
+.login-logo-wrap{text-align:center;margin-bottom:22px;}
+.login-logo{height:110px;width:auto;max-width:290px;filter:drop-shadow(0 0 28px rgba(100,190,230,0.7));transition:filter .3s;}
+.login-logo:hover{filter:drop-shadow(0 0 38px rgba(100,190,230,0.95));}
+.login-tagline{display:none;}
+.f-lbl{display:block;font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:rgba(200,217,230,0.55);font-weight:600;margin-bottom:6px;margin-top:14px;}
+.f-inp{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(86,124,141,0.35);color:#fff;padding:11px 14px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:0.91rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.f-inp option{background:#1E2D3D;color:#fff;}
+.f-inp:focus{border-color:rgba(86,124,141,0.9);box-shadow:0 0 0 3px rgba(86,124,141,0.15);}
+.f-inp::placeholder{color:rgba(200,217,230,0.3);}
+.btn-login{width:100%;padding:13px;border:none;margin-top:20px;
+  background:linear-gradient(135deg,var(--navy),var(--teal));
+  color:#fff;font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;
+  letter-spacing:2.5px;border-radius:var(--r-sm);cursor:pointer;
+  transition:all .25s;box-shadow:0 4px 18px rgba(86,124,141,0.35);}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 7px 26px rgba(86,124,141,0.5);}
+
+/* ══════════ APP ══════════ */
+#app-screen{flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:200;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:14px;transition:background .3s;}
+@media(max-width:768px){.topbar{padding:0 14px;height:52px;}}
+.tb-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.tb-logo{height:44px;width:auto;max-width:180px;flex-shrink:0;}
+.nav-wrap{display:flex;gap:3px;padding:3px;border-radius:var(--r-sm);flex-wrap:wrap;}
+.nav-tab{padding:6px 14px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;border-radius:6px;transition:all .18s;white-space:nowrap;}
+.tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.user-chip{display:flex;align-items:center;gap:7px;border-radius:20px;padding:4px 11px 4px 5px;}
+.u-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;}
+.u-nm{font-size:0.79rem;font-weight:500;}
+@media(max-width:480px){.u-nm{display:none;}}
+.adm-pip{background:rgba(201,150,43,0.18);color:var(--gold-l);border:1px solid rgba(201,150,43,0.32);border-radius:20px;padding:2px 8px;font-size:0.66rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.btn-out{border:none;padding:6px 13px;font-family:'DM Sans',sans-serif;font-size:0.77rem;font-weight:500;cursor:pointer;border-radius:var(--r-xs);transition:all .18s;}
+@media(max-width:580px){.nav-tab{padding:5px 9px;font-size:0.73rem;}}
+
+/* Light topbar mode (sky/beige pages) */
+.tb-light{background:var(--white);border-bottom:1px solid var(--sky);}
+.tb-light .nav-wrap{background:var(--sky-ll);border:1px solid var(--sky);}
+.tb-light .nav-tab{color:var(--text-soft);}
+.tb-light .nav-tab:hover,.tb-light .nav-tab.active{background:var(--white);color:var(--navy);}
+.tb-light .nav-tab.active{font-weight:600;}
+.tb-light .user-chip{background:var(--sky-ll);border:1px solid var(--sky);}
+.tb-light .u-av{background:var(--navy);color:#fff;}
+.tb-light .u-nm{color:var(--navy-d);}
+.tb-light .btn-out{background:var(--sky-ll);color:var(--text-mid);border:1px solid var(--sky);}
+.tb-light .btn-out:hover{background:var(--sky);color:var(--navy);}
+
+/* Dark topbar mode (navy/teal pages) */
+.tb-dark-navy{background:var(--navy-d);border-bottom:1px solid rgba(255,255,255,0.07);}
+.tb-dark-teal{background:var(--teal-d);border-bottom:1px solid rgba(255,255,255,0.1);}
+.tb-dark-navy .nav-wrap,.tb-dark-teal .nav-wrap{background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.1);}
+.tb-dark-navy .nav-tab,.tb-dark-teal .nav-tab{color:rgba(255,255,255,0.55);}
+.tb-dark-navy .nav-tab:hover,.tb-dark-teal .nav-tab:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9);}
+.tb-dark-navy .nav-tab.active,.tb-dark-teal .nav-tab.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600;}
+.tb-dark-navy .user-chip,.tb-dark-teal .user-chip{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);}
+.tb-dark-navy .u-av,.tb-dark-teal .u-av{background:rgba(255,255,255,0.2);color:#fff;}
+.tb-dark-navy .u-nm,.tb-dark-teal .u-nm{color:rgba(255,255,255,0.9);}
+.tb-dark-navy .btn-out,.tb-dark-teal .btn-out{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.18);}
+.tb-dark-navy .btn-out:hover,.tb-dark-teal .btn-out:hover{background:rgba(255,255,255,0.18);}
+
+/* ── PAGE BACKGROUNDS ── */
+.pg{flex:1;padding:30px;overflow-y:auto;display:none;}
+.pg.active{display:block;}
+@media(max-width:860px){.pg{padding:18px 14px;}}
+@media(max-width:580px){.pg{padding:13px 11px;}}
+
+/* Each tab has its own bg — dark navy, teal gradient, light sky/beige */
+.bg-navy{background:linear-gradient(160deg,var(--navy-deep) 0%,var(--navy-d) 55%,var(--navy) 100%);}
+.bg-teal{background:linear-gradient(160deg,var(--teal-d) 0%,var(--teal) 50%,var(--teal-l) 100%);}
+.bg-sky{background:linear-gradient(160deg,var(--sky-l) 0%,var(--beige) 100%);}
+.bg-beige{background:linear-gradient(160deg,var(--beige) 0%,var(--sky-l) 100%);}
+
+.pg-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+
+/* Page headers */
+.ph{margin-bottom:22px;}
+.ph-light .pt{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:.8px;margin-bottom:4px;}
+.ph-light .ps{color:rgba(200,217,230,0.6);font-size:0.84rem;}
+.ph-dark .pt{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;color:var(--navy-d);letter-spacing:.8px;margin-bottom:4px;}
+.ph-dark .ps{color:var(--text-soft);font-size:0.84rem;}
+
+/* ══ WHITE CARDS — used across all pages ══ */
+.card{background:#fff;border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.card-navy::before{background:linear-gradient(90deg,var(--navy),var(--teal));}
+.card-teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-l));}
+.card-sky::before{background:linear-gradient(90deg,var(--sky),var(--teal-l));}
+.card-left{overflow:visible;}
+.card-left::before{display:none;}
+.card-left::after{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;border-radius:var(--r) 0 0 var(--r);}
+.card-left-navy::after{background:var(--navy);}
+.card-left-teal::after{background:var(--teal);}
+.card+.card{margin-top:15px;}
+.c-title{font-family:'Orbitron',monospace;font-size:0.84rem;font-weight:700;color:var(--navy-d);margin-bottom:13px;display:flex;align-items:center;gap:7px;letter-spacing:.4px;}
+
+/* ══ STAT CARDS ══ */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+.sc{background:#fff;border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.sc-navy::after{background:linear-gradient(90deg,var(--navy),var(--teal));}
+.sc-teal::after{background:linear-gradient(90deg,var(--teal),var(--teal-l));}
+.sc-gold::after{background:linear-gradient(90deg,var(--gold),var(--gold-l));}
+.sc-green::after{background:linear-gradient(90deg,var(--green),#3DAA84);}
+.sc-red::after{background:linear-gradient(90deg,var(--red),#E05A4D);}
+.sl{font-size:0.66rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);font-weight:600;margin-bottom:4px;}
+.sv{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:700;line-height:1;}
+.sv-navy{color:var(--navy);}.sv-teal{color:var(--teal);}.sv-gold{color:var(--gold);}.sv-green{color:var(--green);}.sv-red{color:var(--red);}
+.sn{font-size:0.7rem;color:var(--text-muted);margin-top:3px;}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 17px;border:none;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-navy{background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;box-shadow:0 3px 12px rgba(47,65,86,0.25);}
+.btn-navy:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(47,65,86,0.35);}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal-l));color:#fff;}
+.btn-teal:hover{transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text-mid);border:1.5px solid rgba(47,65,86,0.2);}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy);}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1.5px solid rgba(192,57,43,0.22);}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;}
+.btn-sm{padding:6px 12px;font-size:0.78rem;border-radius:var(--r-xs);}
+.btn-full{width:100%;}
+
+/* ══ TAGS ══ */
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:0.66rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.t-id{background:rgba(47,65,86,0.08);color:var(--navy);border:1px solid rgba(47,65,86,0.18);}
+.t-en{background:rgba(45,106,79,0.08);color:var(--green);border:1px solid rgba(45,106,79,0.18);}
+.t-mc{background:rgba(86,124,141,0.09);color:var(--teal);border:1px solid rgba(86,124,141,0.2);}
+.t-tf{background:rgba(201,150,43,0.1);color:var(--gold);border:1px solid rgba(201,150,43,0.22);}
+
+/* ══ DASHBOARD ══ */
+.dash-grid{display:grid;grid-template-columns:1fr 295px;gap:18px;align-items:start;}
+@media(max-width:1000px){.dash-grid{grid-template-columns:1fr;}}
+.xp-track{background:var(--sky-l);border-radius:999px;height:12px;overflow:hidden;margin-top:10px;border:1px solid var(--sky);}
+.xp-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--navy),var(--teal));transition:width 1.2s ease;}
+.mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:580px){.mech-grid{grid-template-columns:1fr;}}
+.mc-card{background:var(--sky-ll);border:1px solid var(--sky);border-radius:var(--r-sm);padding:13px;}
+.mc-ico{font-size:1.3rem;margin-bottom:5px;}
+.mc-ttl{font-weight:700;font-size:0.85rem;color:var(--navy-d);margin-bottom:3px;}
+.mc-dsc{font-size:0.76rem;color:var(--text-soft);line-height:1.5;}
+.callout{border-radius:var(--r-sm);padding:12px 14px;margin-top:10px;display:flex;gap:9px;}
+.co-navy{background:rgba(47,65,86,0.05);border:1.5px solid rgba(47,65,86,0.14);}
+.co-teal{background:rgba(86,124,141,0.06);border:1.5px solid rgba(86,124,141,0.18);}
+.co-body{font-size:0.8rem;color:var(--text-mid);line-height:1.55;}
+.co-t{font-weight:700;color:var(--navy-d);margin-bottom:2px;display:block;}
+
+/* Level map */
+.lm-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);margin-bottom:5px;border:1.5px solid transparent;transition:all .18s;}
+.lm-cur{background:rgba(47,65,86,0.06);border-color:var(--navy);}
+.lm-done{background:rgba(45,106,79,0.05);}
+.lm-lock{opacity:0.35;}
+.lm-ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:2px solid var(--sky);background:var(--sky-ll);}
+.lm-cur .lm-ico{border-color:var(--navy);}
+.lm-done .lm-ico{border-color:var(--green);background:var(--green-bg);}
+.lm-info{flex:1;min-width:0;}
+.lm-nm{font-weight:600;font-size:0.86rem;color:var(--navy-d);}
+.lm-xp{font-size:0.67rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.lm-pk{font-size:0.67rem;color:var(--teal);}
+.lm-st{font-family:'Orbitron',monospace;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;}
+.ls-d{background:var(--green-bg);color:var(--green);border:1px solid rgba(45,106,79,0.2);}
+.ls-n{background:rgba(47,65,86,0.1);color:var(--navy);border:1px solid rgba(47,65,86,0.2);}
+.ls-l{background:var(--sky-ll);color:var(--text-muted);border:1px solid var(--sky);}
+
+/* Badges */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;}
+.b-item{background:var(--white);border:1.5px solid var(--sky);border-radius:var(--r-sm);padding:10px 6px;text-align:center;transition:all .18s;}
+.b-item.unlocked{border-color:var(--gold);box-shadow:0 0 8px rgba(201,150,43,0.18);}
+.b-item.locked{opacity:0.28;filter:grayscale(1);}
+.b-ico{font-size:1.6rem;display:block;margin-bottom:3px;}
+.b-nm{font-size:0.58rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
+.b-item.unlocked .b-nm{color:var(--gold);}
+
+/* ══ LEADERBOARD ══ */
+.lb-tbl{width:100%;border-collapse:collapse;}
+.lb-tbl th{text-align:left;padding:9px 13px;font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);border-bottom:2px solid var(--sky);font-weight:600;}
+.lb-tbl td{padding:11px 13px;border-bottom:1px solid var(--sky-l);}
+.lb-tbl tr:hover td{background:var(--sky-ll);}
+.lb-rank{font-family:'Orbitron',monospace;font-weight:700;font-size:0.92rem;}
+.r1{color:var(--gold);}.r2{color:var(--teal);}.r3{color:#8B6914;}
+.lb-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:var(--sky-l);border:2px solid var(--sky);}
+.lb-lvl{display:inline-block;background:rgba(47,65,86,0.07);border:1px solid rgba(47,65,86,0.15);color:var(--navy);padding:2px 7px;border-radius:20px;font-size:0.7rem;font-family:'Orbitron',monospace;}
+.lb-xp{font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:0.85rem;font-weight:600;}
+.tie-lbl{font-size:0.59rem;color:var(--text-muted);display:block;letter-spacing:.8px;text-transform:uppercase;}
+.you-badge{background:rgba(86,124,141,0.1);color:var(--teal);border:1px solid rgba(86,124,141,0.22);border-radius:20px;padding:1px 6px;font-size:0.59rem;font-weight:700;margin-left:5px;}
+.qs-pill{background:var(--green-bg);color:var(--green);border:1px solid rgba(45,106,79,0.2);border-radius:20px;padding:2px 8px;font-size:0.7rem;font-family:'JetBrains Mono',monospace;}
+
+/* ══ GAMES ══ */
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;}
+.game-card{background:#fff;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;box-shadow:var(--sh);}
+.game-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);}
+.gt{height:108px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;}
+.gt-cp{background:linear-gradient(135deg,var(--navy-deep),var(--navy));}
+.gt-hci{background:linear-gradient(135deg,var(--teal),var(--navy));}
+.gt-fis{background:linear-gradient(135deg,var(--navy),var(--teal-l));}
+.gt-done{position:absolute;top:8px;right:8px;background:var(--green);color:#fff;padding:3px 9px;border-radius:20px;font-size:0.65rem;font-family:'Orbitron',monospace;font-weight:700;}
+.gi{padding:15px;}
+.g-sub{font-size:0.62rem;text-transform:uppercase;letter-spacing:1.8px;color:var(--text-muted);margin-bottom:2px;}
+.g-ttl{font-family:'Orbitron',monospace;font-size:0.88rem;font-weight:700;color:var(--navy-d);margin-bottom:4px;}
+.g-dsc{font-size:0.8rem;color:var(--text-soft);margin-bottom:9px;}
+.g-meta{display:flex;align-items:center;justify-content:space-between;}
+.diffs{display:flex;gap:3px;}
+.dd{width:7px;height:7px;border-radius:50%;background:var(--sky);}
+.dd.on{background:var(--navy);}
+.xpr{font-family:'JetBrains Mono',monospace;font-size:0.73rem;color:var(--teal);font-weight:600;}
+
+/* ══ QUIZ MODAL ══ */
+.modal-ov{position:fixed;inset:0;background:rgba(14,22,35,0.82);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(5px);}
+.modal{background:#fff;border-radius:18px;width:640px;max-width:98vw;max-height:92vh;overflow-y:auto;box-shadow:var(--sh-lg);}
+.modal-hdr{padding:18px 24px;border-bottom:1px solid var(--sky);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,var(--navy-deep),var(--navy));border-radius:18px 18px 0 0;}
+.modal-ttl{font-family:'Orbitron',monospace;font-size:0.88rem;font-weight:700;color:#fff;letter-spacing:1px;}
+.modal-close{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);font-size:1rem;cursor:pointer;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.modal-close:hover{background:rgba(255,255,255,0.22);}
+.modal-body{padding:24px;}
+.pb-bg{background:var(--sky-l);border-radius:999px;height:5px;margin-bottom:18px;overflow:hidden;}
+.pb-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--navy),var(--teal));transition:width .4s ease;}
+.q-num{font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:6px;font-weight:600;}
+.q-txt{font-size:1rem;color:var(--navy-d);font-weight:500;line-height:1.6;margin-bottom:18px;}
+.mc-list{display:flex;flex-direction:column;gap:8px;}
+.mc-opt{background:var(--sky-ll);border:1.5px solid var(--sky);border-radius:var(--r-sm);padding:10px 13px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:10px;font-size:0.88rem;color:var(--navy-d);text-align:left;}
+.mc-opt:hover:not(.disabled){border-color:var(--navy);background:rgba(47,65,86,0.04);}
+.mc-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green);}
+.mc-opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red);}
+.mc-opt.disabled{cursor:not-allowed;}
+.opt-bub{width:25px;height:25px;border-radius:50%;background:var(--sky-l);border:1.5px solid var(--sky);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;color:var(--text-soft);}
+.mc-opt.correct .opt-bub{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.mc-opt.wrong .opt-bub{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.feedback{border-radius:var(--r-sm);padding:11px 13px;margin-top:11px;display:flex;gap:8px;align-items:flex-start;}
+.fb-ok{background:var(--green-bg);border:1.5px solid rgba(45,106,79,0.18);}
+.fb-bad{background:var(--red-bg);border:1.5px solid rgba(192,57,43,0.16);}
+.fb-icon{font-size:0.92rem;flex-shrink:0;}
+.fb-body{font-size:0.81rem;line-height:1.55;}
+.fb-title{font-weight:700;margin-bottom:2px;}
+.fb-ok .fb-title{color:var(--green);}.fb-bad .fb-title{color:var(--red);}
+.fb-ans{display:inline-block;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;background:rgba(47,65,86,0.06);color:var(--navy-d);padding:4px 9px;border-radius:4px;border-left:3px solid var(--navy);}
+
+/* Results */
+.res-hero{text-align:center;padding:30px 18px;background:linear-gradient(145deg,var(--navy-deep),var(--navy),var(--teal));border-radius:var(--r);margin-bottom:18px;position:relative;overflow:hidden;}
+.res-ring{width:105px;height:105px;border-radius:50%;border:5px solid rgba(255,255,255,0.28);margin:0 auto 13px;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.res-pct{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:#fff;}
+.res-lbl{font-size:0.62rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;}
+.res-verdict{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:4px;}
+.res-detail{font-size:0.82rem;color:rgba(200,217,230,0.8);}
+.res-stats{display:flex;justify-content:center;gap:22px;margin-top:15px;flex-wrap:wrap;}
+.rs-it{text-align:center;}
+.rs-num{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:#fff;}
+.rs-lbl{font-size:0.63rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;}
+.res-tbl{width:100%;border-collapse:collapse;}
+.res-tbl th{text-align:left;padding:8px 11px;font-size:0.64rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);border-bottom:2px solid var(--sky);font-weight:600;}
+.res-tbl td{padding:10px 11px;border-bottom:1px solid var(--sky-l);font-size:0.81rem;vertical-align:top;}
+.res-tbl tr:hover td{background:var(--sky-ll);}
+.res-your{font-family:'JetBrains Mono',monospace;font-size:0.71rem;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:2px;}
+.ro{background:var(--green-bg);color:var(--green);}.rb{background:var(--red-bg);color:var(--red);}
+.res-cor{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--teal);display:block;margin-top:2px;}
+.iok{color:var(--green);}.ibad{color:var(--red);}
+
+/* ══ PROFILE ══ */
+.prof-grid{display:grid;grid-template-columns:285px 1fr;gap:17px;}
+@media(max-width:900px){.prof-grid{grid-template-columns:1fr;}}
+.prof-av{width:82px;height:82px;border-radius:50%;border:3px solid var(--navy);display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:var(--sky-l);margin:0 auto 11px;}
+.prof-nm{font-family:'Orbitron',monospace;font-size:0.93rem;font-weight:700;color:var(--navy-d);text-align:center;margin-bottom:3px;}
+.prof-lv{text-align:center;font-size:0.75rem;color:var(--teal);font-weight:600;margin-bottom:11px;}
+.av-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.av-opt{width:44px;height:44px;border-radius:50%;background:var(--sky-l);border:2px solid var(--sky);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;transition:all .18s;}
+.av-opt:hover,.av-opt.sel{border-color:var(--navy);box-shadow:0 0 7px rgba(47,65,86,0.2);}
+.av-opt.locked{opacity:0.22;cursor:not-allowed;filter:grayscale(1);}
+.th-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.th-opt{height:40px;border-radius:var(--r-sm);cursor:pointer;border:2px solid var(--sky);transition:all .18s;}
+.th-opt:hover,.th-opt.sel{border-color:var(--navy);}
+.th-opt.locked{opacity:0.28;cursor:not-allowed;}
+
+/* ══ ADMIN ══ */
+.adm-tbl{width:100%;border-collapse:collapse;}
+.adm-tbl th{text-align:left;padding:9px 12px;font-size:0.64rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);border-bottom:2px solid var(--sky);font-weight:600;}
+.adm-tbl td{padding:10px 12px;border-bottom:1px solid var(--sky-l);font-size:0.82rem;color:var(--navy-d);}
+.adm-tbl tr:hover td{background:var(--sky-ll);}
+.add-box{background:var(--sky-ll);border:1px solid var(--sky);border-radius:var(--r);padding:16px;margin-top:13px;}
+.add-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;}
+@media(max-width:580px){.add-grid{grid-template-columns:1fr;}}
+.ii{width:100%;background:#fff;border:1.5px solid var(--sky);color:var(--navy-d);padding:8px 11px;border-radius:var(--r-xs);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;transition:border-color .2s;}
+.ii:focus{border-color:var(--navy);}
+.hist-tbl{width:100%;border-collapse:collapse;}
+.hist-tbl th{text-align:left;padding:9px 12px;font-size:0.64rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);border-bottom:2px solid var(--sky);font-weight:600;}
+.hist-tbl td{padding:10px 12px;border-bottom:1px solid var(--sky-l);font-size:0.82rem;color:var(--navy-d);}
+.hist-tbl tr:hover td{background:var(--sky-ll);}
+.pp{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700;}
+.pp-p{background:var(--green-bg);color:var(--green);border:1px solid rgba(45,106,79,0.18);}
+.pp-f{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.16);}
+
+/* ══ UTILS ══ */
+.ov-x{overflow-x:auto;}
+.mb4{margin-bottom:15px;}.mb6{margin-bottom:22px;}.mt4{margin-top:13px;}
+.divider{border:none;border-top:1px solid var(--sky);margin:18px 0;}
+.empty-box{text-align:center;padding:42px 18px;color:var(--text-muted);}
+.empty-ico{font-size:2.4rem;display:block;margin-bottom:9px;}
+.spin{display:inline-block;width:32px;height:32px;border-radius:50%;border:3px solid var(--sky);border-top-color:var(--navy);animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-ov{position:fixed;inset:0;background:rgba(14,22,35,0.86);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px;backdrop-filter:blur(6px);}
+.load-txt{color:rgba(200,217,230,0.8);font-size:0.85rem;font-family:'JetBrains Mono',monospace;}
+.toast{position:fixed;top:65px;right:16px;z-index:9999;padding:10px 15px;border-radius:var(--r-sm);font-size:0.8rem;font-weight:500;animation:tIn .25s ease;max-width:260px;box-shadow:var(--sh-md);background:#fff;}
+.t-ok{border:1.5px solid rgba(45,106,79,0.25);color:var(--green);}
+.t-err{border:1.5px solid rgba(192,57,43,0.24);color:var(--red);}
+.t-info{border:1.5px solid rgba(47,65,86,0.18);color:var(--navy);}
+@keyframes tIn{from{transform:translateX(56px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen" class="screen active">
+  <div class="l-line"></div><div class="l-line"></div><div class="l-line"></div>
+  <div class="l-node"></div><div class="l-node"></div><div class="l-node"></div><div class="l-node"></div>
+  <div class="login-card">
+    <div class="login-logo-wrap">
+      <img id="login-logo-img" alt="EduQuest" class="login-logo">
+      <div class="login-tagline">Level Up Your Learning</div>
+    </div>
+    <label class="f-lbl">Select Student</label>
+    <select class="f-inp" id="login-select"><option value="">— Choose your name —</option></select>
+    <label class="f-lbl">Password</label>
+    <input type="password" class="f-inp" id="login-pass" placeholder="Enter your password">
+    <button class="btn-login" onclick="doLogin()">ENTER THE QUEST</button>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app-screen" class="screen" style="flex-direction:column">
+  <div class="topbar tb-dark-navy" id="topbar">
+    <div style="display:flex;align-items:center;gap:12px;min-width:0">
+      <div class="tb-brand">
+        <img id="tb-logo" alt="EduQuest" class="tb-logo">
+        <span id="tb-ttl-el" style="display:none"></span>
+      </div>
+      <div class="nav-wrap" id="nav-wrap">
+        <button class="nav-tab active" onclick="sw('dashboard')">Dashboard</button>
+        <button class="nav-tab" onclick="sw('leaderboard')">Leaderboard</button>
+        <button class="nav-tab" onclick="sw('games')">Games</button>
+        <button class="nav-tab" onclick="sw('profile')">Profile</button>
+        <button class="nav-tab" id="admin-tab" style="display:none" onclick="sw('admin')">⚙ Admin</button>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="user-chip" id="user-chip">
+        <div class="u-av" id="tb-av">?</div>
+        <span class="u-nm" id="tb-nm">—</span>
+      </div>
+      <span class="adm-pip" id="adm-pip" style="display:none">Admin</span>
+      <button class="btn-out" id="btn-out" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD — Navy bg -->
+  <div class="pg bg-navy active" id="pg-dashboard">
+    <div class="pg-inner">
+      <div class="ph ph-light"><div class="pt" id="dash-greet">Welcome!</div><div class="ps">Your academic progress at a glance.</div></div>
+      <div class="stats-row" id="dash-stats"></div>
+      <div class="dash-grid">
+        <div>
+          <div class="card card-navy mb4">
+            <div class="c-title">⚡ XP Progress</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+              <span id="xp-label" style="font-family:'Orbitron',monospace;font-size:0.84rem;font-weight:700;color:var(--navy-d)">Level 1 · Explorer</span>
+              <span id="xp-pct" style="font-family:'Orbitron',monospace;font-size:0.96rem;color:var(--teal);font-weight:700">0%</span>
+            </div>
+            <div class="xp-track"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:7px;flex-wrap:wrap;gap:3px">
+              <span id="xp-base" style="font-size:0.72rem;color:var(--text-muted)">Base XP: 0 · Bonus: +0</span>
+              <span id="xp-next" style="font-size:0.72rem;color:var(--teal)">0 XP to next level</span>
+            </div>
+          </div>
+          <div class="card card-teal mb4">
+            <div class="c-title">📖 How to Level Up</div>
+            <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:10px">Total XP = <strong style="color:var(--navy)">Base XP (GPA)</strong> + <strong style="color:var(--teal)">Bonus XP (quizzes)</strong>.</div>
+            <div class="mech-grid">
+              <div class="mc-card"><div class="mc-ico">🎓</div><div class="mc-ttl">Improve Your GPA</div><div class="mc-dsc">GPA converts to base XP. 1.25 GPA = 950 XP. 2.0 GPA = 800 XP.</div></div>
+              <div class="mc-card"><div class="mc-ico">🎮</div><div class="mc-ttl">Complete Quizzes</div><div class="mc-dsc">Each quiz adds bonus XP. CP +50, HCI +55, FIS +60 per quiz.</div></div>
+              <div class="mc-card"><div class="mc-ico">🏅</div><div class="mc-ttl">Earn Badges</div><div class="mc-dsc">Unlock 10 badges by hitting milestones — first quiz, perfect score, Level 5+.</div></div>
+              <div class="mc-card"><div class="mc-ico">👑</div><div class="mc-ttl">Reach Supreme</div><div class="mc-dsc">1000+ XP = Level 10: Supreme — the highest rank in EduQuest.</div></div>
+            </div>
+            <div class="callout co-navy"><span style="font-size:1rem;flex-shrink:0">⚔️</span><div class="co-body"><span class="co-t">Tied on GPA? Quizzes Break the Tie!</span>Same GPA = same base XP = TIE. Play quizzes to earn bonus XP and climb ahead!</div></div>
+            <div class="callout co-teal"><span style="font-size:1rem;flex-shrink:0">📊</span><div class="co-body"><span class="co-t">Live Dashboard Updates</span>After each quiz: score, XP earned, and your rank all refresh automatically.</div></div>
+          </div>
+          <div class="card card-navy">
+            <div class="c-title">🏅 Badges & Achievements</div>
+            <div class="badges-grid" id="dash-badges"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card card-teal">
+            <div class="c-title">🗺 Level Roadmap</div>
+            <div id="level-map"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD — Teal bg -->
+  <div class="pg bg-teal" id="pg-leaderboard">
+    <div class="pg-inner">
+      <div class="ph ph-light"><div class="pt">🏆 Hall of Champions</div><div class="ps">Rankings update live as quizzes are completed.</div></div>
+      <div class="card card-navy">
+        <div class="ov-x"><table class="lb-tbl"><thead><tr><th>Rank</th><th>Student</th><th>GPA</th><th>XP</th><th>Level</th><th>Quiz Score</th></tr></thead><tbody id="lb-body"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAMES — Sky bg -->
+  <div class="pg bg-sky" id="pg-games">
+    <div class="pg-inner">
+      <div class="ph ph-dark"><div class="pt">🎮 Games Hub</div><div class="ps">Answer correctly to earn XP and climb the leaderboard!</div></div>
+      <div class="games-grid" id="games-grid"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE — Beige bg -->
+  <div class="pg bg-beige" id="pg-profile">
+    <div class="pg-inner">
+      <div class="ph ph-dark"><div class="pt">🧑‍🚀 Your Profile</div><div class="ps">Customize your identity — unlock more as you level up!</div></div>
+      <div class="prof-grid">
+        <div>
+          <div class="card card-navy mb4">
+            <div class="prof-av" id="prof-av">😊</div>
+            <div class="prof-nm" id="prof-nm">—</div>
+            <div class="prof-lv" id="prof-lv">Level 1 · Explorer</div>
+            <div style="text-align:center" id="prof-badges"></div>
+          </div>
+          <div class="card card-teal">
+            <div class="c-title">🔑 Change Password</div>
+            <input type="password" class="ii" id="new-pw" placeholder="New password" style="margin-bottom:10px">
+            <button class="btn btn-navy btn-sm" onclick="changePw()">Save Password</button>
+          </div>
+        </div>
+        <div>
+          <div class="card card-navy mb4">
+            <div class="c-title">👤 Choose Avatar</div>
+            <div class="av-pick" id="av-pick"></div>
+          </div>
+          <div class="card card-teal">
+            <div class="c-title">🎨 Profile Theme</div>
+            <div class="th-pick" id="th-pick"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN — Deep navy bg -->
+  <div class="pg bg-navy" id="pg-admin">
+    <div class="pg-inner">
+      <div class="ph ph-light"><div class="pt">⚙ Admin Panel</div><div class="ps">Manage students and monitor all activity.</div></div>
+      <div class="stats-row" id="adm-stats"></div>
+      <div class="card card-navy mb6">
+        <div class="c-title">👥 Student Accounts</div>
+        <div class="ov-x"><table class="adm-tbl"><thead><tr><th>Student</th><th>GPA</th><th>CP Quiz</th><th>HCI Quiz</th><th>FIS Quiz</th><th>Total</th><th>Actions</th></tr></thead><tbody id="adm-tbody"></tbody></table></div>
+        <div class="add-box mt4">
+          <div style="font-size:0.67rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:var(--text-soft);margin-bottom:10px">Add New Student</div>
+          <div class="add-grid">
+            <div><label class="f-lbl" style="color:var(--text-soft)">Full Name</label><input class="ii" id="new-name" placeholder="Student name"></div>
+            <div><label class="f-lbl" style="color:var(--text-soft)">Password</label><input class="ii" id="new-pass" placeholder="Set password"></div>
+            <button class="btn btn-navy btn-sm" onclick="addSt()" style="margin-top:20px">Add →</button>
+          </div>
+        </div>
+      </div>
+      <div class="card card-teal">
+        <div class="c-title">📊 All Quiz Activity</div>
+        <div class="ov-x"><table class="hist-tbl"><thead><tr><th>Student</th><th>Quiz</th><th>Score</th><th>Result</th></tr></thead><tbody id="adm-act"></tbody></table></div>
+        <div id="adm-empty" class="empty-box" style="display:none"><span class="empty-ico">📭</span><p>No quiz activity yet.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-ov" id="quiz-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="q-modal-title">Quiz</span>
+      <button class="modal-close" onclick="closeQ()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pb-bg"><div class="pb-fill" id="q-prog" style="width:0%"></div></div>
+      <div id="q-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="load-ov" id="loading" style="display:none"><div class="spin"></div><div class="load-txt">Loading...</div></div>
+
+<script>
+
+const LOGO="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyODAgODAiIHdpZHRoPSIyODAiIGhlaWdodD0iODAiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnVGVhbCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNDOEQ5RTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiM2RkIzRDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNTY3QzhEIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnT3JiIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzkwRDRGMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyRjdDQTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdUZXh0IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjQzhEOUU2Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0iZ2xvdyI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjIuNSIgcmVzdWx0PSJibHVyIi8+CiAgICAgIDxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnZT4KICAgIDwvZmlsdGVyPgogICAgPGZpbHRlciBpZD0iZ2xvdzIiPgogICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI0IiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJibHVyIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgoKICA8IS0tIEljb24gbWFyazogc3R5bGl6ZWQgRStRIHdpdGggb3JiaXRhbCByaW5ncyAtLT4KICA8IS0tIE91dGVyIG9yYml0YWwgcmluZyAtLT4KICA8ZWxsaXBzZSBjeD0iNDAiIGN5PSI0MCIgcng9IjM0IiByeT0iMTMiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNnVGVhbCkiIHN0cm9rZS13aWR0aD0iMS44IiBvcGFjaXR5PSIwLjciIHRyYW5zZm9ybT0icm90YXRlKC0zNSA0MCA0MCkiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDwhLS0gU2Vjb25kIG9yYml0YWwgcmluZyAtLT4KICA8ZWxsaXBzZSBjeD0iNDAiIGN5PSI0MCIgcng9IjM0IiByeT0iMTMiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNnVGVhbCkiIHN0cm9rZS13aWR0aD0iMS44IiBvcGFjaXR5PSIwLjUiIHRyYW5zZm9ybT0icm90YXRlKDM1IDQwIDQwKSIgZmlsdGVyPSJ1cmwoI2dsb3cpIi8+CiAgPCEtLSBWZXJ0aWNhbCByaW5nIC0tPgogIDxlbGxpcHNlIGN4PSI0MCIgY3k9IjQwIiByeD0iMTMiIHJ5PSIzNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2dUZWFsKSIgc3Ryb2tlLXdpZHRoPSIxLjQiIG9wYWNpdHk9IjAuNDUiIGZpbHRlcj0idXJsKCNnbG93KSIvPgoKICA8IS0tIENlbnRyYWwgbnVjbGV1cyBnbG93IC0tPgogIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjkiIGZpbGw9InVybCgjZ09yYikiIG9wYWNpdHk9IjAuMjUiIGZpbHRlcj0idXJsKCNnbG93MikiLz4KICA8IS0tIENvcmUgY2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjYiIGZpbGw9InVybCgjZ09yYikiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDwhLS0gSW5uZXIgZG90IC0tPgogIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjIuNSIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC45NSIvPgoKICA8IS0tIE9yYml0aW5nIGVsZWN0cm9ucyAtLT4KICA8Y2lyY2xlIGN4PSI0MCIgY3k9IjcuNSIgcj0iMyIgZmlsbD0iIzkwRDRGMCIgZmlsdGVyPSJ1cmwoI2dsb3cpIi8+CiAgPGNpcmNsZSBjeD0iNzAiIGN5PSI1MiIgcj0iMi4yIiBmaWxsPSIjQzhEOUU2IiBmaWx0ZXI9InVybCgjZ2xvdykiIG9wYWNpdHk9IjAuOSIvPgogIDxjaXJjbGUgY3g9IjE0IiBjeT0iMzMiIHI9IjIuMiIgZmlsbD0iI0M4RDlFNiIgZmlsdGVyPSJ1cmwoI2dsb3cpIiBvcGFjaXR5PSIwLjkiLz4KCiAgPCEtLSBFRFVRVUVTVCB3b3JkbWFyayAtLT4KICA8IS0tIEVEVSAtLT4KICA8dGV4dCB4PSI5MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJPcmJpdHJvbiwgbW9ub3NwYWNlIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iOTAwIiBmaWxsPSJ1cmwoI2dUZXh0KSIgbGV0dGVyLXNwYWNpbmc9IjIiIGZpbHRlcj0idXJsKCNnbG93KSI+RURVPC90ZXh0PgogIDwhLS0gUVVFU1QgaW4gdGVhbCBhY2NlbnQgLS0+CiAgPHRleHQgeD0iOTAiIHk9IjYyIiBmb250LWZhbWlseT0iT3JiaXRyb24sIG1vbm9zcGFjZSIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjkwMCIgZmlsbD0idXJsKCNnVGVhbCkiIGxldHRlci1zcGFjaW5nPSIyIiBmaWx0ZXI9InVybCgjZ2xvdykiPlFVRVNUPC90ZXh0PgoKICA8IS0tIFN1YnRsZSBkaXZpZGVyIGxpbmUgLS0+CiAgPGxpbmUgeDE9Ijg4IiB5MT0iMzgiIHgyPSIyNzUiIHkyPSIzOCIgc3Ryb2tlPSJ1cmwoI2dUZWFsKSIgc3Ryb2tlLXdpZHRoPSIwLjgiIG9wYWNpdHk9IjAuMzUiLz4KCiAgPCEtLSBUYWdsaW5lIC0tPgogIDx0ZXh0IHg9IjkxIiB5PSI3NCIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLCBtb25vc3BhY2UiIGZvbnQtc2l6ZT0iNyIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzhBQUZDMCIgbGV0dGVyLXNwYWNpbmc9IjMuNSIgb3BhY2l0eT0iMC44Ij5MRVZFTCBVUCBZT1VSIExFQVJOSU5HPC90ZXh0Pgo8L3N2Zz4=";
+const GPA_XP={1.0:1000,1.25:950,1.5:900,1.75:850,2.0:800,2.25:750,2.5:700,2.75:650,3.0:600,3.25:550,3.5:500,4.0:400,5.0:200};
+const LEVELS=[
+  {l:1,t:"Explorer",e:"🧭",min:0,max:300,p:"Starting rank — begin your quest"},
+  {l:2,t:"Apprentice",e:"📚",min:300,max:500,p:"Unlock first badge slots"},
+  {l:3,t:"Scholar",e:"🔬",min:500,max:650,p:"Access to Forest theme"},
+  {l:4,t:"Champion",e:"⚔️",min:650,max:750,p:"Galaxy theme unlocked"},
+  {l:5,t:"Master",e:"🎯",min:750,max:850,p:"Unlock Ninja & Astronaut avatars"},
+  {l:6,t:"Grandmaster",e:"🌟",min:850,max:900,p:"Gold theme + Dragon avatar"},
+  {l:7,t:"Legend",e:"🏆",min:900,max:950,p:"Star Student badge"},
+  {l:8,t:"Elite",e:"💎",min:950,max:980,p:"Hall of Fame badge"},
+  {l:9,t:"Mythic",e:"🔥",min:980,max:1000,p:"Near-max rank"},
+  {l:10,t:"Supreme",e:"👑",min:1000,max:9999,p:"MAX RANK — all content unlocked"},
+];
+const BADGES=[
+  {id:"first_quiz",icon:"🎯",name:"First Quest",qR:1},
+  {id:"tri_quiz",icon:"🔥",name:"On Fire",qR:3},
+  {id:"six_quiz",icon:"⚡",name:"Unstoppable",qR:6},
+  {id:"perfect",icon:"💎",name:"Perfectionist",sp:"perfect"},
+  {id:"high_xp",icon:"🌟",name:"Star Student",xR:900},
+  {id:"level5",icon:"👑",name:"Royalty",xR:850},
+  {id:"level8",icon:"🏆",name:"Hall of Fame",xR:950},
+  {id:"cp_master",icon:"💻",name:"Code Wizard",sp:"cp"},
+  {id:"hci_master",icon:"🖥️",name:"UX Guru",sp:"hci"},
+  {id:"fis_master",icon:"📊",name:"Info Sage",sp:"fis"},
+];
+const AVATARS=["😊","😎","🧑‍💻","👩‍🎓","🧙‍♂️","🦸","🥷","🧑‍🚀","🦊","🐉","⚡","🌟","💎","🔥","🌈"];
+const AV_LVL=[0,0,0,0,2,3,5,5,6,7,8,6,8,5,9];
+const THEMES=[
+  {id:"navy",bg:"linear-gradient(135deg,#2F4156,#3D5470)",lv:1},
+  {id:"teal",bg:"linear-gradient(135deg,#567C8D,#6B95A8)",lv:2},
+  {id:"sky",bg:"linear-gradient(135deg,#C8D9E6,#8AAFC0)",lv:3},
+  {id:"forest",bg:"linear-gradient(135deg,#2D6A4F,#40916C)",lv:4},
+  {id:"gold",bg:"linear-gradient(135deg,#C9962B,#E8B84B)",lv:6},
+  {id:"void",bg:"linear-gradient(135deg,#0D1520,#1E2D3D)",lv:8},
+];
+const QUIZZES={
+  cp:{title:"Computer Programming (C#)",emoji:"💻",color:"gt-cp",xpR:50,qs:[
+    {q:"Which keyword declares a variable in C#?",opts:["var","let","dim","def"],a:0,exp:"'var' is used for implicit typing in C#."},
+    {q:"Which symbol is used for single-line comments in C#?",opts:["#","/*","//","--"],a:2,exp:"// is used for single-line comments in C#."},
+    {q:"How do you print to the console in C#?",opts:["print('Hello')","System.out.println('Hello')","Console.WriteLine('Hello');","echo 'Hello'"],a:2,exp:"Console.WriteLine() is the standard C# console output method."},
+    {q:"Which data type stores true/false in C#?",opts:["int","string","bool","float"],a:2,exp:"'bool' is the Boolean data type in C#."},
+    {q:"What does a 'for loop' do?",opts:["Stops the program","Repeats a block of code","Declares a variable","Defines a class"],a:1,exp:"A for loop repeats code based on a counter condition."},
+    {q:"Which keyword defines a class in C#?",opts:["define","object","struct","class"],a:3,exp:"The 'class' keyword defines a class in C#."},
+    {q:"What file extension do C# files use?",opts:[".java",".cpp",".cs",".py"],a:2,exp:"C# source files use the .cs extension."},
+    {q:"Which correctly declares an integer in C#?",opts:["int x = 10;","integer x = 10;","Int x = 10;","var x = 10.5;"],a:0,exp:"'int x = 10;' is correct — 'int' is for 32-bit integers."},
+  ]},
+  hci:{title:"Human-Computer Interaction",emoji:"🖥️",color:"gt-hci",xpR:55,qs:[
+    {q:"What does HCI stand for?",opts:["High Computer Interface","Human-Computer Interaction","Hybrid Computing Integration","Human Control Interface"],a:1,exp:"HCI = Human-Computer Interaction."},
+    {q:"What is 'usability' in HCI?",opts:["Speed of computer","Ease of use","Software security","Device cost"],a:1,exp:"Usability = how easy, efficient, and satisfying a system is."},
+    {q:"Who is considered a pioneer of HCI?",opts:["Steve Jobs","Douglas Engelbart","Vannevar Bush","Alan Turing"],a:1,exp:"Douglas Engelbart invented the computer mouse."},
+    {q:"What does 'UI' stand for?",opts:["User Integration","Universal Interface","User Interface","Unified Input"],a:2,exp:"UI = User Interface."},
+    {q:"Which is an input device?",opts:["Monitor","Printer","Speaker","Keyboard"],a:3,exp:"Keyboard is an input device."},
+    {q:"What principle means design is easy without instructions?",opts:["Affordance","Feedback","Learnability","Intuitive Design"],a:3,exp:"Intuitive Design = usable without instructions."},
+    {q:"What is a 'prototype' in UX?",opts:["Final product","Early model to test ideas","A survey","A programming method"],a:1,exp:"Prototype = early model to test and refine design ideas."},
+    {q:"What does 'accessibility' mean in HCI?",opts:["Speed","Design for users with disabilities","Cost","Number of features"],a:1,exp:"Accessibility = usable by people with various disabilities."},
+  ]},
+  fis:{title:"Fundamentals of Information Systems",emoji:"📊",color:"gt-fis",xpR:60,qs:[
+    {q:"What is an Information System?",opts:["Only software","HW+SW+data+people+processes","Only hardware","A database"],a:1,exp:"IS = hardware, software, data, people, and processes combined."},
+    {q:"Which IS component refers to raw facts?",opts:["People","Process","Data","Hardware"],a:2,exp:"Data = raw unprocessed facts."},
+    {q:"What does DBMS stand for?",opts:["Data Backup Management System","Database Management System","Digital Business Management Software","Distributed Base Management System"],a:1,exp:"DBMS = Database Management System."},
+    {q:"Primary purpose of a TPS?",opts:["Strategic planning","Process daily transactions","Analyze data","Support decisions"],a:1,exp:"TPS = processes daily business transactions."},
+    {q:"Which IS helps managers make decisions?",opts:["TPS","MIS","ERP","DSS"],a:3,exp:"DSS = Decision Support System."},
+    {q:"What is 'cloud computing'?",opts:["Computing with weather data","Storing data over the internet","Local storage only","A type of cable"],a:1,exp:"Cloud = storing and accessing data over the internet."},
+    {q:"Example of IS output?",opts:["Keyboard input","A generated report","Raw survey data","Network cables"],a:1,exp:"Output = processed info like reports and documents."},
+    {q:"What is 'data integrity'?",opts:["Speed of transfer","Accuracy and consistency of data","Amount stored","Network security"],a:1,exp:"Data integrity = accuracy, consistency, and reliability of data."},
+  ]},
+};
+
+
+// ── THEME ENGINE ──
+const THEME_VARS={
+  navy: {a:'#2F4156',b:'#1E2D3D',c:'#567C8D'},
+  teal: {a:'#3A6B7A',b:'#2A5060',c:'#6B95A8'},
+  sky:  {a:'#4A7FA0',b:'#3A6B80',c:'#8AAFC0'},
+  forest:{a:'#2D6A4F',b:'#1E4D38',c:'#40916C'},
+  gold: {a:'#8B6200',b:'#6B4800',c:'#C9962B'},
+  void: {a:'#1A1A2E',b:'#0D0D1A',c:'#4A4A7A'},
+};
+function applyTheme(themeId){
+  const t=THEME_VARS[themeId]||THEME_VARS.navy;
+  const r=document.documentElement;
+  r.style.setProperty('--navy',t.a);
+  r.style.setProperty('--navy-d',t.b);
+  r.style.setProperty('--teal',t.c);
+}
+function resetTheme(){
+  const r=document.documentElement;
+  r.style.removeProperty('--navy');
+  r.style.removeProperty('--navy-d');
+  r.style.removeProperty('--teal');
+}
+
+function loadDB(){
+  const r=localStorage.getItem('eq_v5');
+  if(r)return JSON.parse(r);
+  const d={students:[
+    {id:"arren",name:"Arren Philip Solquia",gpa:1.5,password:"arren123",avatar:"😊",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"james",name:"James Victor Endaya",gpa:1.5,password:"james123",avatar:"😎",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"lan",name:"Lan Bucad",gpa:2.0,password:"lan123",avatar:"🧑‍💻",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"patriz",name:"Patriz Ysabel",gpa:1.25,password:"patriz123",avatar:"👩‍🎓",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"alexis",name:"Alexis Destreza",gpa:1.25,password:"alexis123",avatar:"🧙‍♂️",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"s6",name:"Student Six",gpa:1.75,password:"student6",avatar:"🦸",theme:"navy",uA:[0,1,2,3],badges:[],qs:{},qd:0},
+    {id:"admin",name:"Administrator",gpa:0,password:"admin2024",isAdmin:true,avatar:"⚙",theme:"navy",uA:[],badges:[],qs:{},qd:0},
+  ]};
+  save(d);return d;
+}
+function save(d){localStorage.setItem('eq_v5',JSON.stringify(d));}
+let DB=loadDB(),me=null;
+
+function gpaXP(g){const ks=Object.keys(GPA_XP).map(Number).sort((a,b)=>a-b);let c=ks[0];ks.forEach(k=>{if(Math.abs(k-g)<=Math.abs(c-g))c=k;});return GPA_XP[c]||0;}
+function totalXP(s){return gpaXP(s.gpa)+Object.values(s.qs||{}).reduce((sum,q)=>sum+(q.xpE||0),0);}
+function getLevel(xp){for(let i=LEVELS.length-1;i>=0;i--)if(xp>=LEVELS[i].min)return LEVELS[i];return LEVELS[0];}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+// Auth
+function populateLogin(){const s=document.getElementById('login-select');s.innerHTML='<option value="">— Choose your name —</option>';DB.students.forEach(st=>{const o=document.createElement('option');o.value=st.id;o.textContent=st.name;s.appendChild(o);});}
+function doLogin(){
+  const id=document.getElementById('login-select').value,pw=document.getElementById('login-pass').value.trim();
+  if(!id){toast('Please select your name.','err');return;}
+  if(!pw){toast('Please enter your password.','err');return;}
+  const u=DB.students.find(s=>s.id===id);
+  if(!u||u.password!==pw){toast('Incorrect credentials.','err');return;}
+  me=u;
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').style.display='flex';
+  document.getElementById('tb-nm').textContent=u.name.split(' ')[0];
+  document.getElementById('tb-av').textContent=u.name[0].toUpperCase();
+  // Set logo everywhere
+  const logoSrc=LOGO;
+  document.getElementById('tb-logo').src=logoSrc;
+  document.getElementById('admin-tab').style.display=u.isAdmin?'block':'none';
+  document.getElementById('adm-pip').style.display=u.isAdmin?'inline-block':'none';
+  if(!u.isAdmin&&u.theme)applyTheme(u.theme);else resetTheme();
+  sw('dashboard');
+}
+function doLogout(){me=null;resetTheme();document.getElementById('app-screen').style.display='none';document.getElementById('login-screen').classList.add('active');document.getElementById('login-pass').value='';populateLogin();}
+
+// Tabs — each has its own background and topbar color
+const TAB_CFG={
+  dashboard:{tbCls:'tb-dark-navy',logoFilter:'brightness(0) invert(1)',titleColor:'#fff'},
+  leaderboard:{tbCls:'tb-dark-teal',logoFilter:'brightness(0) invert(1)',titleColor:'#fff'},
+  games:{tbCls:'tb-light',logoFilter:'brightness(0.3) sepia(1) saturate(3) hue-rotate(175deg)',titleColor:'var(--navy-d)'},
+  profile:{tbCls:'tb-light',logoFilter:'brightness(0.3) sepia(1) saturate(3) hue-rotate(175deg)',titleColor:'var(--navy-d)'},
+  admin:{tbCls:'tb-dark-navy',logoFilter:'brightness(0) invert(1)',titleColor:'#fff'},
+};
+
+function sw(t){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+t).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+t+"'"))b.classList.add('active');});
+  const cfg=TAB_CFG[t]||TAB_CFG.dashboard;
+  const tb=document.getElementById('topbar');
+  tb.className='topbar '+cfg.tbCls;
+  const logo=document.getElementById('tb-logo');
+  const ttl=document.getElementById('tb-ttl-el');
+  if(logo){logo.style.filter=cfg.logoFilter;}
+  if(ttl)ttl.style.color=cfg.titleColor;
+  if(t==='dashboard')renderDash();
+  if(t==='leaderboard')renderLB();
+  if(t==='games')renderGames();
+  if(t==='profile')renderProfile();
+  if(t==='admin')renderAdmin();
+}
+
+// Badges
+function checkBadges(s){
+  if(!s.badges)s.badges=[];
+  const xp=totalXP(s),nb=[];
+  BADGES.forEach(b=>{
+    if(s.badges.includes(b.id))return;
+    let e=false;
+    if(b.xR&&xp>=b.xR)e=true;
+    if(b.qR&&(s.qd||0)>=b.qR)e=true;
+    if(b.sp==='perfect'&&s.pScore)e=true;
+    if(b.sp==='cp'&&s.qs?.cp)e=true;
+    if(b.sp==='hci'&&s.qs?.hci)e=true;
+    if(b.sp==='fis'&&s.qs?.fis)e=true;
+    if(e){s.badges.push(b.id);nb.push(b);}
+  });
+  const lvl=getLevel(xp);
+  AV_LVL.forEach((req,i)=>{if(lvl.l>=req&&!(s.uA||[]).includes(i)){if(!s.uA)s.uA=[];s.uA.push(i);}});
+  if(nb.length){save(DB);nb.forEach(b=>toast('🏅 Badge: '+b.name+'!','info'));}
+  else save(DB);
+}
+
+// Dashboard
+function renderDash(){
+  const s=DB.students.find(x=>x.id===me.id);
+  if(me.isAdmin){renderAdminDash();return;}
+  const xp=totalXP(s),lvl=getLevel(xp),base=gpaXP(s.gpa),bonus=xp-base;
+  document.getElementById('dash-greet').textContent='Welcome back, '+s.name.split(' ')[0]+'! 👾';
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="sc sc-navy"><div class="sl">Total XP</div><div class="sv sv-navy">${xp.toLocaleString()}</div><div class="sn">experience points</div></div>
+    <div class="sc sc-teal"><div class="sl">Level</div><div class="sv sv-teal">${lvl.l}</div><div class="sn">${lvl.t}</div></div>
+    <div class="sc sc-gold"><div class="sl">GPA</div><div class="sv sv-gold">${s.gpa.toFixed(2)}</div><div class="sn">academic grade</div></div>
+    <div class="sc sc-green"><div class="sl">Quizzes</div><div class="sv sv-green">${s.qd||0}</div><div class="sn">of 3 completed</div></div>`;
+  const pct=lvl.l>=10?100:Math.min(100,Math.round(((xp-lvl.min)/(lvl.max-lvl.min))*100));
+  document.getElementById('xp-bar').style.width=pct+'%';
+  document.getElementById('xp-pct').textContent=pct+'%';
+  document.getElementById('xp-label').textContent='Level '+lvl.l+' · '+lvl.t;
+  document.getElementById('xp-base').textContent='Base XP: '+base+' · Bonus: +'+bonus;
+  document.getElementById('xp-next').textContent=lvl.l<10?(lvl.max-xp)+' XP to Level '+(lvl.l+1):'🏆 MAX LEVEL!';
+  const map=document.getElementById('level-map');map.innerHTML='';
+  LEVELS.forEach(ld=>{
+    const ach=xp>=ld.min,cur=lvl.l===ld.l;
+    const d=document.createElement('div');d.className='lm-item '+(cur?'lm-cur':ach?'lm-done':'lm-lock');
+    const st=cur?'<span class="lm-st ls-n">NOW</span>':ach?'<span class="lm-st ls-d">✓</span>':'<span class="lm-st ls-l">🔒</span>';
+    d.innerHTML=`<div class="lm-ico">${ld.e}</div><div class="lm-info"><div class="lm-nm">Lv ${ld.l} — ${ld.t}</div><div class="lm-xp">${ld.min}–${ld.max===9999?'MAX':ld.max} XP</div><div class="lm-pk">${ld.p}</div></div>${st}`;
+    map.appendChild(d);
+  });
+  checkBadges(s);
+  const bg=document.getElementById('dash-badges');bg.innerHTML='';
+  BADGES.forEach(b=>{const u=s.badges&&s.badges.includes(b.id);const d=document.createElement('div');d.className='b-item '+(u?'unlocked':'locked');d.innerHTML=`<span class="b-ico">${b.icon}</span><span class="b-nm">${b.name}</span>`;bg.appendChild(d);});
+}
+function renderAdminDash(){
+  document.getElementById('dash-greet').textContent='Admin Overview 👋';
+  const sts=DB.students.filter(s=>!s.isAdmin);
+  const qz=sts.reduce((s,x)=>s+Object.keys(x.qs||{}).length,0);
+  const top=[...sts].sort((a,b)=>totalXP(b)-totalXP(a))[0];
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="sc sc-navy"><div class="sl">Students</div><div class="sv sv-navy">${sts.length}</div></div>
+    <div class="sc sc-teal"><div class="sl">Quizzes Done</div><div class="sv sv-teal">${qz}</div></div>
+    <div class="sc sc-gold"><div class="sl">Top Student</div><div class="sv sv-gold" style="font-size:1.1rem">${top?top.name.split(' ')[0]:'—'}</div></div>
+    <div class="sc sc-green"><div class="sl">Subjects</div><div class="sv sv-green">3</div></div>`;
+  document.getElementById('level-map').innerHTML='<p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:16px">Use the ⚙ Admin tab to manage students.</p>';
+  document.getElementById('dash-badges').innerHTML='';
+  document.getElementById('xp-bar').style.width='0%';
+}
+
+// Leaderboard
+function renderLB(){
+  const sorted=DB.students.filter(s=>!s.isAdmin).sort((a,b)=>totalXP(b)-totalXP(a));
+  const tbody=document.getElementById('lb-body');tbody.innerHTML='';
+  let rankNum=1;
+  const ranks=sorted.map((s,i)=>{if(i===0)rankNum=1;else if(totalXP(sorted[i])<totalXP(sorted[i-1]))rankNum=i+1;return rankNum;});
+  sorted.forEach((s,i)=>{
+    const xp=totalXP(s),lvl=getLevel(xp),rank=ranks[i];
+    const isTied=sorted.filter(x=>totalXP(x)===xp).length>1;
+    const trophy=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const qs=s.qs||{};const ts=Object.values(qs).reduce((s,q)=>s+(q.score||0),0);const tm=Object.values(qs).reduce((s,q)=>s+(q.total||0),0);
+    const isMe=me&&s.id===me.id;
+    const tr=document.createElement('tr');if(isMe)tr.style.background='rgba(86,124,141,0.05)';
+    tr.innerHTML=`<td><span class="lb-rank ${rc}">${isTied&&i>0?'<span class="tie-lbl">TIE</span>':''} ${trophy||('#'+rank)}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="lb-av">${s.avatar||'😊'}</div><div><div style="font-weight:600;color:var(--navy-d)">${s.name}${isMe?'<span class="you-badge">YOU</span>':''}</div><div style="font-size:0.72rem;color:var(--text-muted)">${lvl.t}</div></div></div></td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${s.gpa.toFixed(2)}</td>
+      <td class="lb-xp">⚡ ${xp.toLocaleString()}</td>
+      <td><span class="lb-lvl">LVL ${lvl.l}</span></td>
+      <td>${tm>0?`<span class="qs-pill">${ts}/${tm}</span>`:'<span style="color:var(--text-muted)">—</span>'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// Games
+function renderGames(){
+  const grid=document.getElementById('games-grid');grid.innerHTML='';
+  Object.entries(QUIZZES).forEach(([key,q])=>{
+    const s=me&&!me.isAdmin?DB.students.find(x=>x.id===me.id):null;
+    const done=s&&s.qs&&s.qs[key];
+    const card=document.createElement('div');card.className='game-card';card.onclick=()=>startQuiz(key);
+    const diffs={cp:3,hci:4,fis:4};
+    card.innerHTML=`<div class="gt ${q.color}"><span style="font-size:3rem">${q.emoji}</span>${done?'<div class="gt-done">✓ DONE</div>':''}</div>
+      <div class="gi"><div class="g-sub">${q.title}</div>
+      <div class="g-ttl">${q.title.split('(')[0].trim()} Quiz</div>
+      <div class="g-dsc">${q.qs.length} questions · Multiple choice${done?` · ${s.qs[key].score}/${s.qs[key].total} scored`:''}
+      </div>
+      <div class="g-meta"><div class="diffs">${[0,1,2,3,4].map(i=>`<div class="dd ${i<(diffs[key]||3)?'on':''}"></div>`).join('')}</div><span class="xpr">+${q.xpR} XP</span></div></div>`;
+    grid.appendChild(card);
+  });
+}
+
+// Quiz
+let qKey=null,qState={};
+function startQuiz(key){
+  if(me&&me.isAdmin){toast('Admins cannot take quizzes.','err');return;}
+  qKey=key;const q=QUIZZES[key];
+  qState={key,qs:shuffle([...q.qs]),cur:0,score:0,ans:[],done:false};
+  document.getElementById('q-modal-title').textContent=q.emoji+' '+q.title;
+  document.getElementById('quiz-modal').style.display='flex';
+  renderQQ();
+}
+function renderQQ(){
+  const {qs,cur}=qState;
+  document.getElementById('q-prog').style.width=Math.round((cur/qs.length)*100)+'%';
+  if(cur>=qs.length){showQRes();return;}
+  const q=qs[cur];
+  document.getElementById('q-content').innerHTML=`<div class="q-num">Question ${cur+1} of ${qs.length}</div>
+    <div class="q-txt">${q.q}</div>
+    <div class="mc-list">${q.opts.map((opt,i)=>`<button class="mc-opt" data-v="${i}" onclick="pickOpt(${i})"><span class="opt-bub">${'ABCD'[i]}</span><span>${opt}</span></button>`).join('')}</div>
+    <div id="qfb"></div>`;
+}
+function pickOpt(idx){
+  const q=qState.qs[qState.cur];
+  document.querySelectorAll('.mc-opt').forEach(b=>{b.classList.add('disabled');const v=parseInt(b.dataset.v);if(v===q.a)b.classList.add('correct');else if(v===idx&&idx!==q.a)b.classList.add('wrong');});
+  const ok=idx===q.a;if(ok)qState.score++;
+  qState.ans.push({c:idx,a:q.a,ok});
+  const isLast=qState.cur>=qState.qs.length-1;
+  document.getElementById('qfb').innerHTML=`<div class="feedback ${ok?'fb-ok':'fb-bad'}"><span class="fb-icon">${ok?'✅':'❌'}</span><div class="fb-body"><div class="fb-title">${ok?'Correct!':'Incorrect'}</div>${!ok?`<span class="fb-ans">✓ ${q.exp}</span>`:''}</div></div><div style="margin-top:11px;text-align:right"><button class="btn btn-navy btn-sm" onclick="${isLast?'showQRes()':'nextQQ()'}">${isLast?'See Results 🏁':'Next →'}</button></div>`;
+}
+function nextQQ(){qState.cur++;renderQQ();}
+function showQRes(){
+  const {score,qs,key,ans}=qState;const q=QUIZZES[key];
+  const pct=Math.round((score/qs.length)*100);const xpE=Math.round(q.xpR*(score/qs.length));
+  const s=DB.students.find(x=>x.id===me.id);const prev=s.qs[key];
+  if(!s.qs)s.qs={};
+  s.qs[key]={score,total:qs.length,xpE,pct};
+  s.qd=(s.qd||0)+(prev?0:1);
+  if(pct===100)s.pScore=true;
+  checkBadges(s);save(DB);
+  document.getElementById('q-prog').style.width='100%';
+  document.getElementById('q-content').innerHTML=`<div class="res-hero"><div class="res-ring"><span class="res-pct">${pct}%</span><span class="res-lbl">score</span></div><div class="res-verdict">${pct>=75?'🎉 Great Job!':'📚 Keep Studying'}</div><div class="res-detail">${score}/${qs.length} correct · +${xpE} XP Earned</div><div class="res-stats"><div class="rs-it"><div class="rs-num">${score}</div><div class="rs-lbl">Correct</div></div><div class="rs-it"><div class="rs-num">${qs.length-score}</div><div class="rs-lbl">Wrong</div></div><div class="rs-it"><div class="rs-num">+${xpE}</div><div class="rs-lbl">XP Earned</div></div></div></div>
+  <div class="card card-navy" style="margin-top:14px"><div class="c-title">📋 Answer Review</div><div class="ov-x"><table class="res-tbl"><thead><tr><th>#</th><th>Question</th><th>Your Answer</th><th>Correct</th><th>✓/✗</th></tr></thead><tbody>${ans.map((a,i)=>{const qq=qs[i];return`<tr><td style="color:var(--text-muted);font-family:'JetBrains Mono',monospace">${i+1}</td><td style="color:var(--navy-d)">${qq.q.substring(0,65)}${qq.q.length>65?'...':''}</td><td><span class="res-your ${a.ok?'ro':'rb'}">${qq.opts[a.c]}</span></td><td><span class="res-cor">${qq.opts[a.a]}</span></td><td>${a.ok?'<span class="iok">✓</span>':'<span class="ibad">✗</span>'}</td></tr>`;}).join('')}</tbody></table></div></div>
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px"><button class="btn btn-navy btn-sm" onclick="closeQ();sw('leaderboard')">View Leaderboard</button><button class="btn btn-ghost btn-sm" onclick="closeQ()">Close</button></div>`;
+  renderGames();
+}
+function closeQ(){document.getElementById('quiz-modal').style.display='none';qKey=null;}
+
+// Profile
+function renderProfile(){
+  if(!me||me.isAdmin)return;
+  const s=DB.students.find(x=>x.id===me.id);
+  const xp=totalXP(s),lvl=getLevel(xp);
+  document.getElementById('prof-av').textContent=s.avatar||'😊';
+  document.getElementById('prof-nm').textContent=s.name;
+  document.getElementById('prof-lv').textContent='Level '+lvl.l+' · '+lvl.t;
+  document.getElementById('prof-badges').innerHTML=(s.badges||[]).map(id=>{const b=BADGES.find(x=>x.id===id);return b?`<span title="${b.name}" style="font-size:1.3rem">${b.icon}</span>`:'';}).join(' ');
+  const ap=document.getElementById('av-pick');ap.innerHTML='';
+  AVATARS.forEach((av,i)=>{const u=(s.uA||[]).includes(i);const d=document.createElement('div');d.className='av-opt '+(s.avatar===av?'sel':'')+' '+(u?'':'locked');d.textContent=av;if(u)d.onclick=()=>{s.avatar=av;save(DB);document.getElementById('tb-av').textContent=av;document.getElementById('prof-av').textContent=av;renderProfile();};else d.title='Level '+AV_LVL[i];ap.appendChild(d);});
+  const tp=document.getElementById('th-pick');tp.innerHTML='';
+  THEMES.forEach(t=>{const u=lvl.l>=t.lv;const d=document.createElement('div');d.className='th-opt '+(s.theme===t.id?'sel':'')+' '+(u?'':'locked');d.style.background=t.bg;if(u)d.onclick=()=>{s.theme=t.id;me.theme=t.id;applyTheme(t.id);save(DB);renderProfile();};else d.title='Level '+t.lv;tp.appendChild(d);});
+}
+function changePw(){const pw=document.getElementById('new-pw').value.trim();if(!pw||pw.length<4){toast('Min 4 characters.','err');return;}const s=DB.students.find(x=>x.id===me.id);s.password=pw;save(DB);document.getElementById('new-pw').value='';toast('Password updated! ✓','ok');}
+
+// Admin
+function renderAdmin(){
+  const sts=DB.students.filter(s=>!s.isAdmin);
+  const allQ=sts.flatMap(s=>Object.values(s.qs||{}));
+  const passed=allQ.filter(q=>q.pct>=75).length;
+  document.getElementById('adm-stats').innerHTML=`<div class="sc sc-navy"><div class="sl">Students</div><div class="sv sv-navy">${sts.length}</div></div><div class="sc sc-teal"><div class="sl">Total Quizzes</div><div class="sv sv-teal">${allQ.length}</div></div><div class="sc sc-green"><div class="sl">Passed</div><div class="sv sv-green">${passed}</div></div><div class="sc sc-gold"><div class="sl">Subjects</div><div class="sv sv-gold">3</div></div>`;
+  const tb=document.getElementById('adm-tbody');tb.innerHTML='';
+  sts.forEach(s=>{
+    const q=s.qs||{};const cp=q.cp,hci=q.hci,fis=q.fis;const tot=(cp?.score||0)+(hci?.score||0)+(fis?.score||0);const max=(cp?.total||0)+(hci?.total||0)+(fis?.total||0);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong>${s.name}</strong></td><td style="font-family:'JetBrains Mono',monospace">${s.gpa.toFixed(2)}</td><td>${cp?`<span class="qs-pill">${cp.score}/${cp.total}</span>`:'—'}</td><td>${hci?`<span class="qs-pill">${hci.score}/${hci.total}</span>`:'—'}</td><td>${fis?`<span class="qs-pill">${fis.score}/${fis.total}</span>`:'—'}</td><td>${max>0?`<strong style="color:var(--navy)">${tot}/${max}</strong>`:'—'}</td><td style="display:flex;gap:5px;flex-wrap:wrap"><button class="btn btn-sm btn-outline" onclick="editGPA('${s.id}')">Edit GPA</button><button class="btn btn-sm btn-danger" onclick="delSt('${s.id}')">Delete</button></td>`;
+    tb.appendChild(tr);
+  });
+  const ae=document.getElementById('adm-act');ae.innerHTML='';
+  const acts=sts.flatMap(s=>Object.entries(s.qs||{}).map(([k,v])=>{return {...v,name:s.name,k}}));
+  if(!acts.length){document.getElementById('adm-empty').style.display='block';return;}
+  document.getElementById('adm-empty').style.display='none';
+  acts.forEach(h=>{const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${h.name}</strong></td><td style="font-size:0.8rem;color:var(--text-soft)">${QUIZZES[h.k]?.title||h.k}</td><td><span class="qs-pill">${h.score}/${h.total} (${h.pct}%)</span></td><td><span class="pp ${h.pct>=75?'pp-p':'pp-f'}">${h.pct>=75?'Passed':'Failed'}</span></td>`;ae.appendChild(tr);});
+}
+function editGPA(id){const v=prompt('New GPA (1.0–5.0):');if(!v)return;const g=parseFloat(v);if(isNaN(g)||g<1||g>5){toast('Invalid GPA','err');return;}const s=DB.students.find(x=>x.id===id);s.gpa=g;save(DB);toast('GPA updated.','ok');renderAdmin();}
+function addSt(){const n=document.getElementById('new-name').value.trim(),p=document.getElementById('new-pass').value.trim();if(!n||!p){toast('Fill in name and password.','err');return;}if(DB.students.find(s=>s.name.toLowerCase()===n.toLowerCase())){toast('Name already exists.','err');return;}DB.students.push({id:'s_'+Date.now(),name:n,gpa:2.0,password:p,isAdmin:false,avatar:'😊',theme:'navy',uA:[0,1,2,3],badges:[],qs:{},qd:0});save(DB);document.getElementById('new-name').value='';document.getElementById('new-pass').value='';toast(n+' added!','ok');renderAdmin();populateLogin();}
+function delSt(id){if(!confirm('Delete this student?'))return;DB.students=DB.students.filter(s=>s.id!==id);save(DB);toast('Deleted.','ok');renderAdmin();populateLogin();}
+
+function toast(msg,type='ok'){const n=document.createElement('div');n.className=`toast t-${type}`;n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3200);}
+
+// Set login logo on load
+document.getElementById('login-logo-img').src=LOGO;
+populateLogin();
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+</script>
+</body>
+</html>
